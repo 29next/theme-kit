@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import asyncio
 import collections
 import logging
-from logging.config import fileConfig
 import os
 from watchgod import awatch
 from watchgod.watcher import Change
@@ -13,7 +12,8 @@ import yaml
 CONFIG_FILE = os.path.join(os.getcwd(), 'config.yml')
 
 ConfigInfo = collections.namedtuple('ConfigInfo', 'apikey theme_id store')
-fileConfig(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.conf'))
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
 
 
 def _validate_config(apikey, theme_id, store):
@@ -121,7 +121,7 @@ def _handle_templates_change(changes, config_info):
             error_msg = 'Can\'t update to theme id #{}.'.format(config_info.theme_id)
             if result.get('content'):
                 error_msg = ' '.join(result.get('content', []))
-            logging.error('{}, {}'.format(template_name, error_msg))
+            logging.error('{} - {}'.format(template_name, error_msg))
 
 
 def pull(parser):
