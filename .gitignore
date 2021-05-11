@@ -15,3 +15,21 @@ env.bak/
 venv.bak/
 .vscode/
 .pytest*/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+dist/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
