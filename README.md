@@ -27,7 +27,7 @@ pip install -r requirements.txt
 # In first time
 ./ntk pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
 
-# pull template with the old theme id
+# pull templates with the old theme id
 ./ntk pull
 ```
 
