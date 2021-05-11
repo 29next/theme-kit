@@ -15,10 +15,10 @@ class TestNtk:
             ntk._validate_config(None, '1', 'http://simple.com')
 
         with pytest.raises(TypeError):
-            ntk._validate_config('password', None, 'http://simple.com')
+            ntk._validate_config('apikey', None, 'http://simple.com')
 
         with pytest.raises(TypeError):
-            ntk._validate_config('password', '1', None)
+            ntk._validate_config('apikey', '1', None)
 
     #####
     # _get_config
@@ -26,23 +26,23 @@ class TestNtk:
     def test_get_config_with_file_not_exist_should_write_file_and_retrun_expected_config_info(self, mocker):
         mocker.patch("ntk.os.path.exists").return_value = False
         mock_open_file = mocker.patch("builtins.open")
-        parser = MagicMock(password='password', theme_id='1', store='http://simple.com')
+        parser = MagicMock(apikey='apikey', theme_id='1', store='http://simple.com')
 
         config_info = ntk._get_config(parser)
 
         mock_open_file.assert_called_once_with(os.path.join(os.getcwd(), 'config.yml'), 'w')
 
-        assert config_info.password == 'password'
+        assert config_info.apikey == 'apikey'
         assert config_info.theme_id == '1'
         assert config_info.store == 'http://simple.com'
 
     def test_get_config_with_file_exists_should_get_config_info_from_file(self, mocker):
         mocker.patch("builtins.open", mock_open(
-            read_data='development:\n  password: 2b78f637972b1c9d\n  store: http://simple.com\n  theme_id: "1"\n'))
+            read_data='development:\n  apikey: 2b78f637972b1c9d\n  store: http://simple.com\n  theme_id: "1"\n'))
 
         config_info = ntk._get_config()
 
-        assert config_info.password == '2b78f637972b1c9d'
+        assert config_info.apikey == '2b78f637972b1c9d'
         assert config_info.theme_id == '1'
         assert config_info.store == 'http://simple.com'
 
@@ -50,9 +50,9 @@ class TestNtk:
         self, mocker
     ):
         mocker.patch("ntk.os.path.exists").return_value = True
-        parser = MagicMock(password=None, theme_id='2', store='http://sandbox.29next.com')
+        parser = MagicMock(apikey=None, theme_id='2', store='http://sandbox.29next.com')
         mock_open_file = mocker.patch("builtins.open", mock_open(
-            read_data='development:\n  password: 2b78f637972b1c9d\n  store: http://simple.com\n  theme_id: "1"\n'))
+            read_data='development:\n  apikey: 2b78f637972b1c9d\n  store: http://simple.com\n  theme_id: "1"\n'))
 
         config_info = ntk._get_config(parser)
 
@@ -65,7 +65,7 @@ class TestNtk:
         assert call().write('theme_id') in mock_open_file.mock_calls
         assert call().write('2') in mock_open_file.mock_calls
 
-        assert config_info.password == '2b78f637972b1c9d'
+        assert config_info.apikey == '2b78f637972b1c9d'
         assert config_info.theme_id == '2'
         assert config_info.store == 'http://sandbox.29next.com'
 
@@ -79,7 +79,7 @@ class TestNtk:
         payload = {
             'name': 'xxx.html'
         }
-        ntk._request('GET', 'http://simple.com/themes/templates', token='2b78f637972b1c9d', payload=payload)
+        ntk._request('GET', 'http://simple.com/themes/templates', apikey='2b78f637972b1c9d', payload=payload)
 
         expected_calls = [
             call(
@@ -123,14 +123,14 @@ class TestNtk:
         mock_request.return_value.content = b'\xc2\x89'
 
         mock_config = mocker.patch("ntk._get_config")
-        mock_config.return_value = parser = MagicMock(password='password', theme_id='1', store='http://simple.com')
+        mock_config.return_value = parser = MagicMock(apikey='apikey', theme_id='1', store='http://simple.com')
 
         mock_open_file = mocker.patch("builtins.open")
 
         ntk.pull(parser)
 
         expected_call_requests = [
-            call('GET', 'http://simple.com/api/admin/themes/1/templates/', token='password'),
+            call('GET', 'http://simple.com/api/admin/themes/1/templates/', apikey='apikey'),
             call().json(),
             # get image file from S3
             call('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
@@ -156,7 +156,7 @@ class TestNtk:
         mock_request = mocker.patch('ntk.requests.request')
         mock_request.return_value.status_code = 200
 
-        config_info = MagicMock(password='password', theme_id='1', store='http://simple.com')
+        config_info = MagicMock(apikey='apikey', theme_id='1', store='http://simple.com')
 
         changes = {
             (Change.added, './assets/base.html'),
@@ -171,7 +171,7 @@ class TestNtk:
         # Change.modified
         expected_call_modified = call(
             'POST', 'http://simple.com/api/admin/themes/1/templates/',
-            headers={'Authorization': 'Token password'},
+            headers={'Authorization': 'Token apikey'},
             data={'name': 'layout/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'},
             files={})
         assert expected_call_modified in mock_request.mock_calls
@@ -179,13 +179,13 @@ class TestNtk:
         # Change.deleted
         expected_call_deleted = call(
             'DELETE', 'http://simple.com/api/admin/themes/1/templates/?name=layout/base.html',
-            headers={'Authorization': 'Token password'}, data={}, files={})
+            headers={'Authorization': 'Token apikey'}, data={}, files={})
         assert expected_call_deleted in mock_request.mock_calls
 
         # Change.added
         expected_call_added = call(
             'POST', 'http://simple.com/api/admin/themes/1/templates/',
-            headers={'Authorization': 'Token password'},
+            headers={'Authorization': 'Token apikey'},
             data={'name': 'layout/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'},
             files={})
         assert expected_call_added in mock_request.mock_calls
@@ -197,7 +197,7 @@ class TestNtk:
         mock_request = mocker.patch('ntk.requests.request')
         mock_request.return_value.status_code = 200
 
-        config_info = MagicMock(password='password', theme_id='1', store='http://simple.com')
+        config_info = MagicMock(apikey='apikey', theme_id='1', store='http://simple.com')
 
         changes = {
             (Change.added, './assets/image.jpg'),
@@ -210,6 +210,6 @@ class TestNtk:
         # Change.added image
         expected_call_added = call(
             'POST', 'http://simple.com/api/admin/themes/1/templates/',
-            headers={'Authorization': 'Token password'}, data={'name': 'assets/image.jpg', 'content': ''},
+            headers={'Authorization': 'Token apikey'}, data={'name': 'assets/image.jpg', 'content': ''},
             files={'file': ('assets/image.jpg', mock_img_file)})
         assert expected_call_added in mock_request.mock_calls

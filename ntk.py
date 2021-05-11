@@ -12,13 +12,13 @@ import yaml
 
 CONFIG_FILE = os.path.join(os.getcwd(), 'config.yml')
 
-ConfigInfo = collections.namedtuple('ConfigInfo', 'password theme_id store')
+ConfigInfo = collections.namedtuple('ConfigInfo', 'apikey theme_id store')
 fileConfig(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logging.conf'))
 
 
-def _validate_config(password, theme_id, store):
-    if not password:
-        raise TypeError('argument -p/--password is required')
+def _validate_config(apikey, theme_id, store):
+    if not apikey:
+        raise TypeError('argument -a/--apikey is required')
     if not theme_id:
         raise TypeError('argument -t/--theme_id is required')
     if not store:
@@ -29,7 +29,7 @@ def _get_config(parser=None):
     # default config structure
     config = {
         "development": {
-            "password": None,
+            "apikey": None,
             "theme_id": None,
             "store": None
         }
@@ -37,15 +37,15 @@ def _get_config(parser=None):
     is_config_update = False
 
     if not os.path.exists(CONFIG_FILE):
-        _validate_config(parser.password, parser.theme_id, parser.store)
+        _validate_config(parser.apikey, parser.theme_id, parser.store)
     else:
         with open(CONFIG_FILE, "r") as yamlfile:
             config = yaml.load(yamlfile, Loader=yaml.FullLoader)
             yamlfile.close()
 
-    if getattr(parser, 'password', None):
+    if getattr(parser, 'apikey', None):
         is_config_update = True
-        config['development']['password'] = parser.password
+        config['development']['apikey'] = parser.apikey
 
     if getattr(parser, 'theme_id', None):
         is_config_update = True
@@ -56,7 +56,7 @@ def _get_config(parser=None):
         config['development']['store'] = parser.store
 
     _validate_config(
-        config.get('development', {}).get('password'),
+        config.get('development', {}).get('apikey'),
         config.get('development', {}).get('theme_id'),
         config.get('development', {}).get('store'),
     )
@@ -67,16 +67,16 @@ def _get_config(parser=None):
             yamlfile.close()
 
     return ConfigInfo(
-        config['development']['password'],
+        config['development']['apikey'],
         config['development']['theme_id'],
         config['development']['store'],
     )
 
 
-def _request(request_type, url, token=None, payload={}, files={}):
+def _request(request_type, url, apikey=None, payload={}, files={}):
     headers = {}
-    if token:
-        headers = {'Authorization': 'Token {}'.format(token)}
+    if apikey:
+        headers = {'Authorization': 'Token {}'.format(apikey)}
 
     return requests.request(request_type, url, headers=headers, data=payload, files=files)
 
@@ -91,6 +91,9 @@ def _handle_templates_change(changes, config_info):
         # change ./partials/alert_messages.html -> partials/alert_messages.html
         template_name = pathfile.replace('./', '')
         current_pathfile = os.path.join(os.getcwd(), template_name)
+
+        if current_pathfile.endswith(('.py', '.yml', '.conf')):
+            return
 
         logging.info('{} {}'.format(str(event_type), template_name))
 
@@ -108,9 +111,9 @@ def _handle_templates_change(changes, config_info):
                     payload['content'] = f.read()
                     f.close()
 
-            response = _request("POST", url, token=config_info.password, payload=payload, files=files)
+            response = _request("POST", url, apikey=config_info.apikey, payload=payload, files=files)
         elif event_type == Change.deleted:
-            response = _request("DELETE", '{}?name={}'.format(url, template_name), token=config_info.password)
+            response = _request("DELETE", '{}?name={}'.format(url, template_name), apikey=config_info.apikey)
 
         # api log error
         if not str(response.status_code).startswith('2'):
@@ -124,7 +127,7 @@ def _handle_templates_change(changes, config_info):
 def pull(parser):
     config_info = _get_config(parser)
 
-    response = _request("GET", _url(config_info), token=config_info.password)
+    response = _request("GET", _url(config_info), apikey=config_info.apikey)
     templates = response.json()
 
     if type(templates) != list:
@@ -179,7 +182,7 @@ def create_parser():
     parser_pull = subparsers.add_parser('pull', help='To download a specific theme')
     parser_pull.set_defaults(func=pull)
     parser_pull.add_argument(
-        '-p', '--password', action="store", dest="password", help='your API password')
+        '-a', '--apikey', action="store", dest="apikey", help='your API key')
     parser_pull.add_argument('-s', '--store', action="store", dest="store", help='your store\'s URL')
     parser_pull.add_argument(
         '-t', '--theme_id', action="store", dest="theme_id", help='your theme\'s ID is to download')
