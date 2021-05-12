@@ -1,15 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import argparse
 import asyncio
 import collections
 import logging
 import os
+import requests
+
 from watchgod import awatch
 from watchgod.watcher import Change
-import requests
 import yaml
 
 CONFIG_FILE = os.path.join(os.getcwd(), 'config.yml')
+CONTENT_FILE_EXTENSIONS = ['.html', '.json', '.css', '.js']
+MEDIA_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.woff', '.woff2', '.ico']
 
 ConfigInfo = collections.namedtuple('ConfigInfo', 'apikey theme_id store')
 
@@ -76,13 +79,13 @@ def _get_config(parser=None):
 def _request(request_type, url, apikey=None, payload={}, files={}):
     headers = {}
     if apikey:
-        headers = {'Authorization': 'Token {}'.format(apikey)}
+        headers = {'Authorization': f'Token {apikey}'}
 
     return requests.request(request_type, url, headers=headers, data=payload, files=files)
 
 
 def _url(config_info):
-    return "{}/api/admin/themes/{}/templates/".format(config_info.store, config_info.theme_id)
+    return f"{config_info.store}/api/admin/themes/{config_info.theme_id}/templates/"
 
 
 def _handle_templates_change(changes, config_info):
@@ -95,7 +98,7 @@ def _handle_templates_change(changes, config_info):
         if current_pathfile.endswith(('.py', '.yml', '.conf')):
             return
 
-        logging.info('{} {}'.format(str(event_type), template_name))
+        logging.info(f'{str(event_type)} {template_name}')
 
         if event_type in [Change.added, Change.modified]:
             files = {}
@@ -104,7 +107,7 @@ def _handle_templates_change(changes, config_info):
                 'content': ''
             }
 
-            if current_pathfile.endswith(('.jpg', '.jpeg', '.png', '.gif', '.svg')):
+            if current_pathfile.endswith(tuple(MEDIA_FILE_EXTENSIONS)):
                 files = {'file': (template_name, open(current_pathfile, 'rb'))}
             else:
                 with open(current_pathfile, 'r') as f:
@@ -113,15 +116,17 @@ def _handle_templates_change(changes, config_info):
 
             response = _request("POST", url, apikey=config_info.apikey, payload=payload, files=files)
         elif event_type == Change.deleted:
-            response = _request("DELETE", '{}?name={}'.format(url, template_name), apikey=config_info.apikey)
+            response = _request("DELETE", f'{url}?name={template_name}', apikey=config_info.apikey)
 
         # api log error
         if not str(response.status_code).startswith('2'):
             result = response.json()
-            error_msg = 'Can\'t update to theme id #{}.'.format(config_info.theme_id)
+            error_msg = f'Can\'t update to theme id #{config_info.theme_id}.'
             if result.get('content'):
                 error_msg = ' '.join(result.get('content', []))
-            logging.error('{} -> {}'.format(template_name, error_msg))
+            if result.get('file'):
+                error_msg = ' '.join(result.get('file', []))
+            logging.error(f'{template_name} -> {error_msg}')
 
 
 def pull(parser):
@@ -131,32 +136,51 @@ def pull(parser):
     templates = response.json()
 
     if type(templates) != list:
-        logging.info('Theme id #{} don\'t exist in the system.'.format(config_info.theme_id))
+        logging.info(f'Theme id #{config_info.theme_id} don\'t exist in the system.')
         return
 
+    current_files = []
     for template in templates:
         template_name = str(template['name'])
         current_pathfile = os.path.join(os.getcwd(), template_name)
+        current_files.append(current_pathfile)
 
         # create directories
         dirs = os.path.dirname(current_pathfile)
         if not os.path.exists(dirs):
             os.makedirs(dirs)
 
-        # write html, css file
-        if template['content']:
-            with open(current_pathfile, "w", encoding="utf-8") as template_file:
-                template_file.write(template['content'])
-                template_file.close()
-
-        # write media file
+        # write file
         if template['file']:
             response = _request("GET", template['file'])
             with open(current_pathfile, "wb") as media_file:
                 media_file.write(response.content)
                 media_file.close()
+        else:
+            with open(current_pathfile, "w", encoding="utf-8") as template_file:
+                template_file.write(template.get('content'))
+                template_file.close()
 
-        logging.info('Downloading ' + template_name)
+        logging.info(f'Downloading {template_name}')
+
+    # find all files in directory
+    files_in_directory = []
+    for root, dirs, files in os.walk(os.getcwd()):
+        print(root, dirs, files)
+        for file in files:
+            file_extension = file.split('.')[-1]
+            if f'.{file_extension}' not in CONTENT_FILE_EXTENSIONS + MEDIA_FILE_EXTENSIONS:
+                continue
+            files_in_directory.append(os.path.join(root, file))
+
+    # delete file in directory that don't exist in store
+    for file_name in files_in_directory:
+        if file_name in current_files:
+            continue
+
+        os.remove(file_name)
+        name = file_name.replace(os.getcwd(), '')
+        logging.info(f'Removing {name} -> file don\'t exist in store')
 
 
 def watch(parser):

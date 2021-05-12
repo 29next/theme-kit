@@ -1,7 +1,8 @@
 import os
+from unittest.mock import call, MagicMock, mock_open
+
 import pytest
 from watchgod.watcher import Change
-from unittest.mock import call, MagicMock, mock_open
 
 import ntk
 
@@ -101,7 +102,7 @@ class TestNtk:
     #####
     # pull
     #####
-    def test_pull_template_should_create_template_belong_to_api_templates_response(self, mocker):
+    def test_pull_command_should_create_files_belong_to_api_templates_response(self, mocker):
         mock_request = mocker.patch('ntk._request')
         mock_path_exists = mocker.patch('ntk.os.path.exists')
         mock_path_exists.return_value = True
@@ -146,6 +147,65 @@ class TestNtk:
         assert call(os.path.join(os.getcwd(), 'layout/base.html'), 'w', encoding='utf-8') in mock_open_file.mock_calls
         assert call().__enter__().write(
             '{% load i18n %}\n\n<div class="mt-2">My home page</div>') in mock_open_file.mock_calls
+
+    def test_pull_command_with_file_in_directory_not_exist_in_store_should_delete_file_not_exist_in_store(
+        self, mocker
+    ):
+        mock_request = mocker.patch('ntk._request')
+        mock_path_exists = mocker.patch('ntk.os.path.exists')
+        mock_path_exists.return_value = True
+        
+        mock_walk = mocker.patch('ntk.os.walk')
+        mock_walk.return_value = [
+            (os.path.join(os.getcwd(), 'assets'), [], ['custom.css']),
+        ]
+        mock_remove = mocker.patch('ntk.os.remove')
+
+        templates_response = [
+            {
+                "theme": '5',
+                "name": "assets/image.png",
+                "content": "",
+                "file": "https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png"
+            },
+            {
+                "theme": 5,
+                "name": "layout/base.html",
+                "content": "{% load i18n %}\n\n<div class=\"mt-2\">My home page</div>",
+                "file": None
+            }
+        ]
+        mock_request.return_value.json.return_value = templates_response
+        mock_request.return_value.content = b'\xc2\x89'
+
+        mock_config = mocker.patch("ntk._get_config")
+        mock_config.return_value = parser = MagicMock(apikey='apikey', theme_id='1', store='http://simple.com')
+
+        mock_open_file = mocker.patch("builtins.open")
+
+        ntk.pull(parser)
+
+        expected_call_requests = [
+            call('GET', 'http://simple.com/api/admin/themes/1/templates/', apikey='apikey'),
+            call().json(),
+            # get image file from S3
+            call('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
+        ]
+        assert mock_request.mock_calls == expected_call_requests
+
+        # create assets/image.png
+        assert call(os.path.join(os.getcwd(), 'assets/image.png'), 'wb') in mock_open_file.mock_calls
+        assert call().__enter__().write(b'\xc2\x89') in mock_open_file.mock_calls
+
+        # create layout/base.html
+        assert call(os.path.join(os.getcwd(), 'layout/base.html'), 'w', encoding='utf-8') in mock_open_file.mock_calls
+        assert call().__enter__().write(
+            '{% load i18n %}\n\n<div class="mt-2">My home page</div>') in mock_open_file.mock_calls
+
+        expected_calls_remove = [
+            call(os.path.join(os.getcwd(), 'assets/custom.css'))
+        ]
+        assert mock_remove.mock_calls == expected_calls_remove
 
     #####
     # _handle_templates_change
