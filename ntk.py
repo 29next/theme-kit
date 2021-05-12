@@ -145,11 +145,8 @@ def pull(parser):
 
         # write html, css file
         if template['content']:
-            with open(current_pathfile, "w") as template_file:
-                try:
-                    template_file.write(template['content'])
-                except UnicodeEncodeError:
-                    template_file.write(template['content'].encode('utf-8').strip())
+            with open(current_pathfile, "w", encoding="utf-8") as template_file:
+                template_file.write(template['content'])
                 template_file.close()
 
         # write media file
