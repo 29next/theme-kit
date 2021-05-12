@@ -94,7 +94,7 @@ def _handle_files_change(changes, config_info):
     url = _url(config_info)
     for event_type, pathfile in changes:
         # change ./partials/alert_messages.html -> partials/alert_messages.html
-        template_name = pathfile.replace('./', '')
+        template_name = pathfile.replace('\\', '/').replace('./', '')
         current_pathfile = os.path.join(os.getcwd(), template_name)
 
         if current_pathfile.endswith(('.py', '.yml', '.conf')):
@@ -145,7 +145,7 @@ def pull(parser):
     for template in templates:
         template_name = str(template['name'])
         current_pathfile = os.path.join(os.getcwd(), template_name)
-        current_files.append(current_pathfile)
+        current_files.append(current_pathfile.replace('\\', '/'))
 
         # create directories
         dirs = os.path.dirname(current_pathfile)
@@ -173,7 +173,7 @@ def pull(parser):
             if f'.{file_extension}' not in CONTENT_FILE_EXTENSIONS + MEDIA_FILE_EXTENSIONS:
                 continue
 
-            files_in_directory.append(os.path.join(root, file))
+            files_in_directory.append(os.path.join(root, file).replace('\\', '/'))
 
     # delete file in directory that don't exist in store
     for file_name in files_in_directory:
