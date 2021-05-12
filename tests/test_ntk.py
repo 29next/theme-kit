@@ -39,6 +39,7 @@ class TestNtk:
     def test_get_config_with_file_exists_should_get_config_info_from_file(self, mocker):
         mocker.patch("builtins.open", mock_open(
             read_data='development:\n  apikey: 2b78f637972b1c9d\n  store: http://simple.com\n  theme_id: "1"\n'))
+        mocker.patch("ntk.os.path.exists").return_value = True
 
         config_info = ntk._get_config()
 
@@ -142,7 +143,7 @@ class TestNtk:
         assert call().__enter__().write(b'\xc2\x89') in mock_open_file.mock_calls
 
         # create layout/base.html
-        assert call(os.path.join(os.getcwd(), 'layout/base.html'), 'w') in mock_open_file.mock_calls
+        assert call(os.path.join(os.getcwd(), 'layout/base.html'), 'w', encoding='utf-8') in mock_open_file.mock_calls
         assert call().__enter__().write(
             '{% load i18n %}\n\n<div class="mt-2">My home page</div>') in mock_open_file.mock_calls
 
