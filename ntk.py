@@ -121,7 +121,7 @@ def _handle_templates_change(changes, config_info):
             error_msg = 'Can\'t update to theme id #{}.'.format(config_info.theme_id)
             if result.get('content'):
                 error_msg = ' '.join(result.get('content', []))
-            logging.error('{} - {}'.format(template_name, error_msg))
+            logging.error('{} -> {}'.format(template_name, error_msg))
 
 
 def pull(parser):
