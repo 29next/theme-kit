@@ -90,7 +90,7 @@ def _url(config_info):
     return f"{config_info.store}/api/admin/themes/{config_info.theme_id}/templates/"
 
 
-def _handle_templates_change(changes, config_info):
+def _handle_files_change(changes, config_info):
     url = _url(config_info)
     for event_type, pathfile in changes:
         # change ./partials/alert_messages.html -> partials/alert_messages.html
@@ -190,7 +190,7 @@ def watch(parser):
 
     async def main():
         async for changes in awatch('.'):
-            _handle_templates_change(changes, config_info)
+            _handle_files_change(changes, config_info)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())

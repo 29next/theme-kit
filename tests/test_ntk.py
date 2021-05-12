@@ -208,9 +208,9 @@ class TestNtk:
         assert mock_remove.mock_calls == expected_calls_remove
 
     #####
-    # _handle_templates_change
+    # _handle_files_change
     #####
-    def test_handle_templates_change_should_call_request_with_correct_arguments(self, mocker):
+    def test_handle_files_change_should_call_request_with_correct_arguments(self, mocker):
         mocker.patch("builtins.open", mock_open(
             read_data='{% load i18n %}\n\n<div class=\"mt-2\">My home page</div>'))
 
@@ -225,7 +225,7 @@ class TestNtk:
             (Change.deleted, './layout/base.html'),
         }
 
-        ntk._handle_templates_change(changes, config_info)
+        ntk._handle_files_change(changes, config_info)
 
         assert mock_request.call_count == 3
 
@@ -251,7 +251,7 @@ class TestNtk:
             files={})
         assert expected_call_added in mock_request.mock_calls
 
-    def test_handle_templates_change_with_image_file_should_call_request_with_correct_arguments(self, mocker):
+    def test_handle_files_change_with_image_file_should_call_request_with_correct_arguments(self, mocker):
         mock_open_file = mocker.patch("builtins.open")
         mock_open_file.return_value = mock_img_file = MagicMock()
 
@@ -264,7 +264,7 @@ class TestNtk:
             (Change.added, './assets/image.jpg'),
         }
 
-        ntk._handle_templates_change(changes, config_info)
+        ntk._handle_files_change(changes, config_info)
 
         assert mock_request.call_count == 1
 
