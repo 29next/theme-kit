@@ -25,15 +25,15 @@ pip install -r requirements.txt
 
 ```python
 # In first time
-./ntk pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
+./ntk.py pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
 
 # pull templates with the old theme id
-./ntk pull
+./ntk.py pull
 ```
 
 - #### watch command
 ```python
-./ntk watch
+./ntk.py watch
 ```
 
 ## How to run tests
