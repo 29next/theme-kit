@@ -10,7 +10,8 @@ from watchgod import awatch
 from watchgod.watcher import Change
 import yaml
 
-CONFIG_FILE = os.path.join(os.getcwd(), 'config.yml')
+CONFIG_FILE_NAME = 'config.yml'
+CONFIG_FILE = os.path.join(os.getcwd(), CONFIG_FILE_NAME)
 CONTENT_FILE_EXTENSIONS = ['.html', '.json', '.css', '.js']
 MEDIA_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.woff', '.woff2', '.ico']
 
@@ -40,6 +41,7 @@ def _get_config(parser=None):
     is_config_update = False
 
     if not os.path.exists(CONFIG_FILE):
+        logging.info(f'Creating {CONFIG_FILE_NAME}')
         _validate_config(parser.apikey, parser.theme_id, parser.store)
     else:
         with open(CONFIG_FILE, "r") as yamlfile:
@@ -184,7 +186,7 @@ def pull(parser):
 
 
 def watch(parser):
-    config_info = _get_config()
+    config_info = _get_config(parser)
 
     async def main():
         async for changes in awatch('.'):
@@ -195,6 +197,12 @@ def watch(parser):
 
 
 def create_parser():
+    def _add_config_arguments(parser):
+        parser.add_argument('-a', '--apikey', action="store", dest="apikey", help='your API key')
+        parser.add_argument('-s', '--store', action="store", dest="store", help='your store\'s URL')
+        parser.add_argument(
+            '-t', '--theme_id', action="store", dest="theme_id", help='your theme\'s ID is to download')
+
     # create the top-level parser
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title='prime-theme-kit\'s commands', help='List command')
@@ -202,15 +210,12 @@ def create_parser():
     # create the parser for the "pull" command
     parser_pull = subparsers.add_parser('pull', help='To download a specific theme')
     parser_pull.set_defaults(func=pull)
-    parser_pull.add_argument(
-        '-a', '--apikey', action="store", dest="apikey", help='your API key')
-    parser_pull.add_argument('-s', '--store', action="store", dest="store", help='your store\'s URL')
-    parser_pull.add_argument(
-        '-t', '--theme_id', action="store", dest="theme_id", help='your theme\'s ID is to download')
+    _add_config_arguments(parser_pull)
 
     # create the parser for the "watch" command
     parser_watch = subparsers.add_parser('watch', help='Push updates to your theme')
     parser_watch.set_defaults(func=watch)
+    _add_config_arguments(parser_watch)
 
     return parser
 
@@ -218,4 +223,9 @@ def create_parser():
 if __name__ == '__main__':
     parser = create_parser()
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except TypeError as e:
+        logging.error(e)
+    except KeyboardInterrupt:
+        pass
