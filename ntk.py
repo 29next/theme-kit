@@ -166,11 +166,11 @@ def pull(parser):
     # find all files in directory
     files_in_directory = []
     for root, dirs, files in os.walk(os.getcwd()):
-        print(root, dirs, files)
         for file in files:
             file_extension = file.split('.')[-1]
             if f'.{file_extension}' not in CONTENT_FILE_EXTENSIONS + MEDIA_FILE_EXTENSIONS:
                 continue
+
             files_in_directory.append(os.path.join(root, file))
 
     # delete file in directory that don't exist in store
