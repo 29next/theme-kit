@@ -6,8 +6,5 @@ stages:
 test:
     stage: test
     script:
-        - virtualenv venv
-        - virtualenv -p python3 venv
-        - source venv/bin/activate
         - pip install -r requirements.txt
         - pytest -v
