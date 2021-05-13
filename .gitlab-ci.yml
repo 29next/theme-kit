@@ -6,10 +6,8 @@ stages:
 test:
     stage: test
     script:
-        - sudo apt-get install python3-pip
-        - sudo pip3 install virtualenv
         - virtualenv venv
         - virtualenv -p python3 venv
         - source venv/bin/activate
         - pip install -r requirements.txt
-        - pytest
+        - pytest -v
