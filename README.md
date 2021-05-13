@@ -39,5 +39,11 @@ pip install -r requirements.txt
 ## How to run tests
 
 ```python
-pytest
+python -m unittest -v -b
+```
+
+## How to make python entry points
+
+```python
+python setup.py develop --user
 ```
