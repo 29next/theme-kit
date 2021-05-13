@@ -241,17 +241,37 @@ def create_parser():
 
     # create the top-level parser
     parser = argparse.ArgumentParser(
-        epilog='Use "ntk [command] --help" for more information about a command.')
+        description='''
+Usage:
+  ntk [command] [options]''',
+        usage=argparse.SUPPRESS,
+        epilog='Use "ntk [command] --help" for more information about a command.',
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     _add_config_arguments(parser)
     subparsers = parser.add_subparsers(title='Available Commands')
 
     # create the parser for the "pull" command
-    parser_pull = subparsers.add_parser('pull', help='Download a specific theme')
+    parser_pull = subparsers.add_parser(
+        'pull',
+        help='Download a specific theme',
+        usage=argparse.SUPPRESS,
+        description='''
+Usage:
+  ntk pull [option]''',
+        formatter_class=argparse.RawTextHelpFormatter)
     parser_pull.set_defaults(func=pull)
     _add_config_arguments(parser_pull)
 
     # create the parser for the "watch" command
-    parser_watch = subparsers.add_parser('watch', help='Push updates to your theme')
+    parser_watch = subparsers.add_parser(
+        'watch',
+        help='Push updates to your theme',
+        usage=argparse.SUPPRESS,
+        description='''
+Usage:
+  ntk watch [option]''',
+        formatter_class=argparse.RawTextHelpFormatter)
     parser_watch.set_defaults(func=watch)
     _add_config_arguments(parser_watch)
 
