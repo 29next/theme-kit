@@ -1,10 +1,18 @@
 image: python:alpine
 
+before_script:
+    - pip install -r requirements.txt
+
 stages:
- - test
+    - flake8
+    - test
+
+ flake8:
+    stage: flake8
+    script:
+        - flake8 --max-line-length=120 bild/*.py
 
 test:
     stage: test
     script:
-        - pip install -r requirements.txt
-        - pytest -v
+        - python -m unittest -v -b
