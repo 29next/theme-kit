@@ -1,0 +1,10 @@
+image: python:alpine
+
+stages:
+ - test
+
+test:
+    stage: test
+    script:
+        - pip install -r requirements.txt
+        - pytest -v
