@@ -9,7 +9,7 @@ Theme Kit is a cross-platform command line tool that you can use to build Prime 
 ```
 sudo apt-get install python3-pip
 sudo pip3 install virtualenv 
-virtualenv venv
+
 virtualenv -p python3 venv
 
 # activate
