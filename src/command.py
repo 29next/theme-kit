@@ -10,7 +10,11 @@ from .gateway import Gateway
 from .utils import create_and_get_config, progress_bar, get_config
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 CONTENT_FILE_EXTENSIONS = ['.html', '.json', '.css', '.js']
 MEDIA_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.woff', '.woff2', '.ico']
@@ -70,6 +74,8 @@ class Command:
             logging.info(f'Theme id #{config.theme_id} don\'t exist in the system.')
             return
 
+        logging.info(f'[{config.env}] Connecting to {config.store}')
+        logging.info(f'[{config.env}] Pulling files from theme id {config.theme_id} ')
         current_files = []
         for template in progress_bar(templates, prefix=f'[{config.env}] Progress:', suffix='Complete', length=50):
             template_name = str(template['name'])
@@ -96,6 +102,7 @@ class Command:
 
     def watch(self, parser):
         config = get_config(parser)
+        logging.info(f'[{config.env}] Watching for file changes ')
 
         async def main():
             async for changes in awatch('.'):
