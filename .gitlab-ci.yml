@@ -7,7 +7,7 @@ stages:
     - flake8
     - test
 
- flake8:
+flake8:
     stage: flake8
     script:
         - flake8 --max-line-length=120 bild/*.py
