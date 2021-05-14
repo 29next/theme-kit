@@ -1,7 +1,7 @@
 import unittest
 
 
-def my_module_suite():
+def test_suite():
     import logging
 
     logging.disable(logging.INFO)

@@ -16,7 +16,7 @@ setup(
         ],
     },
     package_dir={'': 'src'},
-    test_suite="tests.my_module_suite",
+    test_suite="tests.test_suite",
     python_requires='>=3.6',
     tests_require=[
         "flake8==3.9.2",
