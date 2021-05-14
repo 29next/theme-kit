@@ -51,8 +51,6 @@ class Command:
             elif event_type == Change.deleted:
                 response = gateway.delete_template(config.theme_id, template_name)
 
-
-
             # api log error
             if not str(response.status_code).startswith('2'):
                 result = response.json()
