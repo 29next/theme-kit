@@ -18,10 +18,10 @@ class Parser:
     def create_parser(self):
         option_commands = '''
 options:
-    -a, --apikey        your API key
-    -s, --store         your store's URL
-    -t, --theme_id      your theme's ID is to download
-    -e, --env           environment to run the command(default [development])'''
+    -a, --apikey        API key
+    -s, --store         Store URL
+    -t, --theme_id      Theme ID
+    -e, --env           Environment to run the command(default [development])'''
 
         # create the top-level parser
         parser = argparse.ArgumentParser(
@@ -30,7 +30,7 @@ Usage:
     ntk [command] [options]
 
 available commands:
-    pull        Download a specific theme
+    pull        Download all files from a theme
     watch       Push updates to your theme
 ''' + option_commands,
             usage=argparse.SUPPRESS,

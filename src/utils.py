@@ -1,7 +1,7 @@
 import collections
 import logging
 import os
-
+import time
 import yaml
 
 CONFIG_FILE_NAME = 'config.yml'
@@ -30,7 +30,8 @@ def progress_bar(iterable, prefix='', suffix='', decimals=1, length=100, fill='â
         percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
         filledLength = int(length * iteration // total)
         bar = fill * filledLength + '-' * (length - filledLength)
-        print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
+        current_time = time.strftime('%Y-%m-%d %H:%M:%S')
+        print(f'\r{current_time} INFO {prefix} |{bar}| {percent}% {suffix}', end=printEnd)
 
     # Initial Call
     print_progress_bar(0)
