@@ -16,7 +16,7 @@ virtualenv -p python3 venv
 source venv/bin/activate
 
 # install python packages
-pip install next-theme-kit
+pip install -e .
 ```
 
 ## How to make python entry points

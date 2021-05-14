@@ -1,7 +1,7 @@
 image: python:alpine
 
 before_script:
-    - pip install next-theme-kit
+    - pip install -e .
 
 stages:
     - test
