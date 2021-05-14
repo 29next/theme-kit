@@ -1,4 +1,3 @@
-import logging
 import os
 import unittest
 from unittest.mock import call, MagicMock, mock_open, patch
@@ -7,9 +6,6 @@ from watchgod.watcher import Change
 
 from src.command import Command
 from src.utils import Config
-
-logging.disable(logging.INFO)
-logging.disable(logging.WARNING)
 
 
 class TestCommand(unittest.TestCase):

@@ -1,12 +1,8 @@
-import logging
 import os
 import unittest
 from unittest.mock import call, MagicMock, mock_open, patch
 
 from src.utils import _validate_config, create_and_get_config, get_config
-
-logging.disable(logging.INFO)
-logging.disable(logging.WARNING)
 
 
 class TestUtils(unittest.TestCase):
