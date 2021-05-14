@@ -11,6 +11,8 @@ def main():
     args = parser.parse_args()
     try:
         args.func(args)
+    except AttributeError:
+        print('Use ntk -h to see available commands')
     except TypeError as e:
         logging.error(e)
     except KeyboardInterrupt:
