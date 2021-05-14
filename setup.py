@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+tests_require = [
+    "flake8==3.9.2",
+]
+
 setup(
     name='next-theme-kit',
     author="29next",
@@ -18,7 +22,8 @@ setup(
     package_dir={'': 'src'},
     test_suite="tests.test_suite",
     python_requires='>=3.6',
-    tests_require=[
-        "flake8==3.9.2",
-    ],
+    tests_require=tests_require,
+    extras_require={
+        'test': tests_require
+    },
 )

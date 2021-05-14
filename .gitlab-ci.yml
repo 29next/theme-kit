@@ -9,5 +9,6 @@ stages:
 test:
     stage: test
     script:
+        - pip install .[test]
         - flake8 --max-line-length=120
         - python setup.py test
