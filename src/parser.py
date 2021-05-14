@@ -16,7 +16,6 @@ class Parser:
             '-e', '--env', action="store", dest="env", default='development', help=argparse.SUPPRESS)
 
     def create_parser(self):
-        print('33333')
         option_commands = '''
 options:
     -a, --apikey        your API key
