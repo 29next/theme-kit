@@ -103,6 +103,7 @@ class Command:
     def watch(self, parser):
         config = get_config(parser)
         logging.info(f'[{config.env}] Watching for file changes ')
+
         async def main():
             async for changes in awatch('.'):
                 self._handle_files_change(changes, config)
