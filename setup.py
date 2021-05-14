@@ -2,6 +2,7 @@ from setuptools import setup
 
 tests_require = [
     "flake8==3.9.2",
+    "nose==1.3.7"
 ]
 
 setup(
@@ -20,8 +21,8 @@ setup(
         ],
     },
     package_dir={'': 'src'},
-    test_suite="tests.test_suite",
     python_requires='>=3.6',
+    test_suite='nose.collector',
     tests_require=tests_require,
     extras_require={
         'test': tests_require
