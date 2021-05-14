@@ -22,13 +22,13 @@ class TestUtils(unittest.TestCase):
     #####
     def test_validate_config_should_raise_expected_error(self):
         with self.assertRaises(TypeError):
-            _validate_config(None, '1', 'http://simple.com')
+            _validate_config('env', None, '1', 'http://simple.com')
 
         with self.assertRaises(TypeError):
-            _validate_config('apikey', None, 'http://simple.com')
+            _validate_config('env', 'apikey', None, 'http://simple.com')
 
         with self.assertRaises(TypeError):
-            _validate_config('apikey', '1', None)
+            _validate_config('env', 'apikey', '1', None)
 
     #####
     # get_config

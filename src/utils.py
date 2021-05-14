@@ -42,7 +42,7 @@ def progress_bar(iterable, prefix='', suffix='', decimals=1, length=100, fill='â
     print()
 
 
-def _validate_config(apikey, theme_id, store):
+def _validate_config(env, apikey, theme_id, store):
     error_msgs = []
     if not apikey:
         error_msgs.append('-a/--apikey')
@@ -54,7 +54,7 @@ def _validate_config(apikey, theme_id, store):
     if error_msgs:
         message = ', '.join(error_msgs)
         pluralize = 'is' if len(error_msgs) == 1 else 'are'
-        raise TypeError(f'argument {message} {pluralize} required')
+        raise TypeError(f'[{env}] argument {message} {pluralize} required')
 
 
 def get_config(parser, write_file=False):
@@ -86,7 +86,7 @@ def get_config(parser, write_file=False):
             "store": getattr(parser, 'store', None)
         }
 
-    _validate_config(configs[env]['apikey'], configs[env]['theme_id'], configs[env]['store'])
+    _validate_config(env, configs[env]['apikey'], configs[env]['theme_id'], configs[env]['store'])
 
     is_config_update = False
     if getattr(parser, 'apikey', None) or getattr(parser, 'theme_id', None) or getattr(parser, 'store', None):
@@ -109,7 +109,7 @@ def create_and_get_config(parser):
     config = {}
     env = parser.env
     if not os.path.exists(CONFIG_FILE):
-        _validate_config(parser.apikey, parser.theme_id, parser.store)
+        _validate_config(env, parser.apikey, parser.theme_id, parser.store)
 
         config[env] = {
             "apikey": getattr(parser, 'apikey', None),
