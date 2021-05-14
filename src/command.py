@@ -30,7 +30,8 @@ class Command:
             if current_pathfile.endswith(('.py', '.yml', '.conf')):
                 return
 
-            logging.info(f'[{config.env}] processing {template_name}')
+            logging.info(f'[{config.env}] {str(event_type)} {template_name}')
+            logging.info(f'[{config.env}] Uploading {template_name}')
 
             if event_type in [Change.added, Change.modified]:
                 files = {}
@@ -50,7 +51,7 @@ class Command:
             elif event_type == Change.deleted:
                 response = gateway.delete_template(config.theme_id, template_name)
 
-            logging.info(f'[{config.env}] {str(event_type)} {template_name}')
+
 
             # api log error
             if not str(response.status_code).startswith('2'):
@@ -73,8 +74,9 @@ class Command:
             logging.info(f'Theme id #{config.theme_id} don\'t exist in the system.')
             return
 
+        template_count = len(templates)
         logging.info(f'[{config.env}] Connecting to {config.store}')
-        logging.info(f'[{config.env}] Pulling files from theme id {config.theme_id} ')
+        logging.info(f'[{config.env}] Pulling {template_count} files from theme id {config.theme_id} ')
         current_files = []
         for template in progress_bar(templates, prefix=f'[{config.env}] Progress:', suffix='Complete', length=50):
             template_name = str(template['name'])
@@ -97,11 +99,14 @@ class Command:
                     template_file.write(template.get('content'))
                     template_file.close()
 
-            time.sleep(0.01)
+            time.sleep(0.08)
 
     def watch(self, parser):
         config = get_config(parser)
-        logging.info(f'[{config.env}] Watching for file changes ')
+        current_pathfile = os.path.join(os.getcwd())
+        logging.info(f'[{config.env}] Current store {config.store}')
+        logging.info(f'[{config.env}] Current theme id {config.theme_id}')
+        logging.info(f'[{config.env}] Watching for file changes in {current_pathfile}')
 
         async def main():
             async for changes in awatch('.'):
