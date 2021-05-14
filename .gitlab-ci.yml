@@ -1,7 +1,7 @@
 image: python:alpine
 
 before_script:
-    - pip install -r requirements.txt
+    - pip install next-theme-kit
 
 stages:
     - test
@@ -10,4 +10,4 @@ test:
     stage: test
     script:
         - flake8 --max-line-length=120
-        - python -m unittest -v -b
+        - python setup.py test

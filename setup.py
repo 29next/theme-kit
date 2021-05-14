@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='next-theme-kit',
@@ -12,8 +12,13 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ntk = src.ntk:main',
+            'ntk = ntk:main',
         ],
     },
+    package_dir={'': 'src'},
+    test_suite="tests.my_module_suite",
     python_requires='>=3.6',
+    tests_require=[
+        "flake8==3.9.2",
+    ],
 )

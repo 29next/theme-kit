@@ -6,8 +6,8 @@ import time
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from .gateway import Gateway
-from .utils import create_and_get_config, progress_bar, get_config
+from gateway import Gateway
+from utils import create_and_get_config, progress_bar, get_config
 
 
 logging.basicConfig(

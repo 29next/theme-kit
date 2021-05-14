@@ -16,7 +16,7 @@ virtualenv -p python3 venv
 source venv/bin/activate
 
 # install python packages
-pip install -r requirements.txt
+pip install next-theme-kit
 ```
 
 ## How to make python entry points
@@ -51,5 +51,5 @@ ntk watch
 ## How to run tests
 
 ```python
-python -m unittest -v -b
+python setup.py test
 ```

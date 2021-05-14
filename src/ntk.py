@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 
-from src.parser import Parser
+from ntk_parser import Parser
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
