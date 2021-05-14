@@ -1,6 +1,6 @@
 import argparse
 
-from .command import Command
+from command import Command
 
 
 class Parser:
