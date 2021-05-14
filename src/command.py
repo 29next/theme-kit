@@ -105,6 +105,7 @@ class Command:
         logging.info(f'[{config.env}] Current store {config.store}')
         logging.info(f'[{config.env}] Current theme id {config.theme_id}')
         logging.info(f'[{config.env}] Watching for file changes in {current_pathfile}')
+        logging.info(f'[{config.env}] Press Ctrl + C to stop')
 
         async def main():
             async for changes in awatch('.'):
