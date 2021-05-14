@@ -4,8 +4,8 @@ import os
 import time
 import yaml
 
-CONFIG_FILE_NAME = 'config.yml'
-CONFIG_FILE = os.path.join(os.getcwd(), CONFIG_FILE_NAME)
+from conf import CONFIG_FILE
+
 
 Config = collections.namedtuple('Config', 'env apikey theme_id store')
 

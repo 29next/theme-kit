@@ -6,6 +6,7 @@ import time
 from watchgod import awatch
 from watchgod.watcher import Change
 
+from conf import MEDIA_FILE_EXTENSIONS
 from gateway import Gateway
 from utils import create_and_get_config, progress_bar, get_config
 
@@ -16,15 +17,13 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
-CONTENT_FILE_EXTENSIONS = ['.html', '.json', '.css', '.js']
-MEDIA_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.woff', '.woff2', '.ico']
-
 
 class Command:
     def _handle_files_change(self, changes, config):
         gateway = Gateway(store=config.store, apikey=config.apikey)
         for event_type, pathfile in changes:
-            # change ./partials/alert_messages.html -> partials/alert_messages.html
+            # change linux path ./partials/alert_messages.html -> partials/alert_messages.html
+            # change window path .\partials\alert_messages.html -> partials/alert_messages.html
             template_name = pathfile.replace('\\', '/').replace('./', '')
             current_pathfile = os.path.join(os.getcwd(), template_name)
 
