@@ -1,6 +1,6 @@
-# Prime theme kit
+# Next theme kit
 
-Theme Kit is a cross-platform command line tool that you can use to build Prime themes. To get up and running quickly with Theme Kit.
+Theme Kit is a cross-platform command line tool that you can use to build themes. To get up and running quickly with Theme Kit.
 
 ## How to setup
 
