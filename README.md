@@ -19,6 +19,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## How to make python entry points
+
+```python
+python setup.py develop --user
+```
+
 ## How to run commands
 
 - #### pull command
@@ -27,23 +33,23 @@ pip install -r requirements.txt
 # In first time
 ./ntk.py pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
 
+ntk pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
+
 # pull templates with the old theme id
 ./ntk.py pull
+
+ntk pull
 ```
 
 - #### watch command
 ```python
 ./ntk.py watch
+
+ntk watch
 ```
 
 ## How to run tests
 
 ```python
 python -m unittest -v -b
-```
-
-## How to make python entry points
-
-```python
-python setup.py develop --user
 ```
