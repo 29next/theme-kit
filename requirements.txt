@@ -1,3 +1,4 @@
+flake8
 PyYAML==5.4.1
 requests==2.25.1
 watchgod==0.7
