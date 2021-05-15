@@ -1,8 +1,5 @@
 image: python:alpine
 
-before_script:
-    - pip install -e .
-
 stages:
     - test
 
