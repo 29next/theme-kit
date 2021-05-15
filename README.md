@@ -30,21 +30,15 @@ python setup.py develop --user
 - #### pull command
 
 ```python
-# In first time
-./ntk.py pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
+# In first time, need to specific api_key, theme_id and store_url, then script will generate config.yml
+ntk pull -a={{ api_key }} -t={{ theme_id }} -s={{ store_url }}
 
-ntk pull -a={{ api key }} -t={{ theme id }} -s={{ store url }}
-
-# pull templates with the old theme id
-./ntk.py pull
-
+# After that can use command without params like this
 ntk pull
 ```
 
 - #### watch command
 ```python
-./ntk.py watch
-
 ntk watch
 ```
 
