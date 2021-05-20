@@ -28,10 +28,5 @@ setup(
         ],
     },
     package_dir={'': 'src'},
-    python_requires='>=3.6',
-    test_suite='nose.collector',
-    tests_require=tests_require,
-    extras_require={
-        'test': tests_require
-    },
+    python_requires='>=3.6'
 )
