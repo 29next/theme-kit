@@ -7,6 +7,6 @@ test:
     stage: test
     script:
         - sudo apt update && sudo apt install python3-pip
-        - pip install .[test]
+        - pip3 install .[test]
         - flake8
         - python setup.py test
