@@ -9,4 +9,4 @@ test:
         - apt -y update && apt -y install python3-pip
         - pip install .[test]
         - flake8
-        - python setup.py test
+        - python3 setup.py test
