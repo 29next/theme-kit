@@ -17,4 +17,6 @@ tox:
         - sudo apt install python3.6
         - sudo apt install python3.7
         - sudo apt install python3.8
+        - pip install tox
+        - pip install .[test]
         - tox
