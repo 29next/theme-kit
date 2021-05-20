@@ -2,6 +2,7 @@ image: python:alpine
 
 stages:
     - test
+    - tox
 
 test:
     stage: test
@@ -9,3 +10,11 @@ test:
         - pip install .[test]
         - flake8
         - python setup.py test
+
+tox:
+    stage: tox
+    script:
+        - sudo apt install python3.6
+        - sudo apt install python3.7
+        - sudo apt install python3.8
+        - tox
