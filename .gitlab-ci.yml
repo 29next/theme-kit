@@ -2,23 +2,11 @@ image: ubuntu:20.04
 
 stages:
     - test
-    - tox
 
 test:
     stage: test
     script:
-        - apt install python3-pip
+        - sudo apt update && sudo apt install python3-pip
         - pip install .[test]
         - flake8
         - python setup.py test
-
-tox:
-    stage: tox
-    script:
-        - apt install python3-pip
-        - apt install python3.6
-        - apt install python3.7
-        - apt install python3.8
-        - pip install tox
-        - pip install .[test]
-        - tox
