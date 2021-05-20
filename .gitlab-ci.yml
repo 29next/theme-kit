@@ -1,4 +1,4 @@
-image: python:alpine
+image: ubuntu:20.04
 
 stages:
     - test
@@ -14,9 +14,9 @@ test:
 tox:
     stage: tox
     script:
-        - apk add python3.6
-        - apk add python3.7
-        - apk add python3.8
+        - sudo apt install python3.6
+        - sudo apt install python3.7
+        - sudo apt install python3.8
         - pip install tox
         - pip install .[test]
         - tox
