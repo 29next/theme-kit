@@ -2,7 +2,7 @@ image: fkrull/multi-python
 
 stages:
     - test
-    - upload
+    - release
 
 test:
     stage: test
@@ -12,12 +12,13 @@ test:
         - flake8
         - tox
 
-
-upload:
-  stage: upload
+release:
+  stage: release
   script:
       - pip3 install twine
       - pip3 install .[test]
       - python3 setup.py bdist_wheel sdist
       - twine upload dist/* --skip-existing
-
+  only:
+    refs:
+      - master
