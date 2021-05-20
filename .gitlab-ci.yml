@@ -1,4 +1,4 @@
-image: ubuntu:20.04
+image: snakepacker/python
 
 stages:
     - test
@@ -9,5 +9,6 @@ test:
         - apt -y update && apt -y install python3-pip
         - apt install python3.7
         - pip install .[test]
+        - pip install tox
         - flake8
         - tox
