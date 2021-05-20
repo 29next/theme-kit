@@ -7,7 +7,7 @@ stages:
 test:
     stage: test
     script:
-        - sudo apt-get install python3-pip
+        - apt install python3-pip
         - pip install .[test]
         - flake8
         - python setup.py test
@@ -15,10 +15,10 @@ test:
 tox:
     stage: tox
     script:
-        - sudo apt install python3-pip
-        - sudo apt install python3.6
-        - sudo apt install python3.7
-        - sudo apt install python3.8
+        - apt install python3-pip
+        - apt install python3.6
+        - apt install python3.7
+        - apt install python3.8
         - pip install tox
         - pip install .[test]
         - tox
