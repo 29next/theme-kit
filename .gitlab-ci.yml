@@ -2,6 +2,7 @@ image: fkrull/multi-python
 
 stages:
     - test
+    - upload
 
 test:
     stage: test
@@ -10,3 +11,13 @@ test:
         - pip3 install flake8
         - flake8
         - tox
+
+
+upload:
+  stage: upload
+  script:
+      - pip3 install twine
+      - pip3 install .[test]
+      - python3 setup.py bdist_wheel sdist
+      - twine upload dist/* -u $PYPI_USER -p $PYPI_PASSWORD
+
