@@ -6,6 +6,6 @@ stages:
 test:
     stage: test
     script:
-        - pip install .[test]
+        - pip3 install .[test]
         - flake8
         - tox
