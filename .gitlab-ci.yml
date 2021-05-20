@@ -6,6 +6,7 @@ stages:
 test:
     stage: test
     script:
+        - apt -y install python3-pip
         - pip install .[test]
         - pip install tox
         - flake8
