@@ -19,5 +19,5 @@ upload:
       - pip3 install twine
       - pip3 install .[test]
       - python3 setup.py bdist_wheel sdist
-      - twine upload dist/*
+      - twine upload dist/* --skip-existing
 
