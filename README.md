@@ -77,7 +77,7 @@ ntk checkout
 #### Pull
 Pull a theme from your store to into your directory.
 ```
-ntk checkout
+ntk pull
 ```
 ##### Required flags without config.yml
 | Short | Long | Description|
