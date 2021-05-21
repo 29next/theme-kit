@@ -4,7 +4,9 @@ on: [push]
 jobs:
   test:
     name: Tests
-    runs-on: fkrull/multi-python
+    runs-on: ubuntu-latest
+    container:
+      image: fkrull/multi-python
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
