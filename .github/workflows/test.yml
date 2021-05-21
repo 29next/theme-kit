@@ -1,0 +1,21 @@
+name: Test
+on: [push]
+
+jobs:
+  test:
+    name: Tests
+    runs-on: fkrull/multi-python
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          pip3 install .[test]
+          pip3 install flake8
+
+     - name: Check python syntax
+       run: flake8
+
+     - name: Run tests
+       run: tox
