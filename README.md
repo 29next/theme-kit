@@ -1,54 +1,49 @@
-# Next theme kit
+# 29 Next Theme Kit
 
-Theme Kit is a cross-platform command line tool that you can use to build themes. To get up and running quickly with Theme Kit.
+Theme Kit is a cross-plaform command line tool to build and maintain storefront themes on the 29 Next platform.
 
-## How to Install for user
+### Installation
 
-```python
-python setup.py develop --user
+Theme Kit is a python package available on [PyPi](https://pypi.org/project/next-theme-kit/)
+
+If you already have `python` and `pip`, install with the following command:
+
 ```
-Or can use python-pip
-
-```python
-pip install .
-```
-
-## How to setup For development
-
-- Run on Python3 - [How to install Python 3.7 on Ubuntu](https://linuxize.com/post/how-to-install-python-3-7-on-ubuntu-18-04/)
-- Install virtualenv & python packages
-```
-sudo apt-get install python3-pip
-sudo pip3 install virtualenv 
-
-virtualenv -p python3 venv
-
-# activate
-source venv/bin/activate
-
-# while development the script, install python packages
-pip install -e .
+pip install next-theme-kit
 ```
 
-## How to run commands
+#### Mac OSX Requirements
+See how to install `python` and `pip` with [HomeBrew](https://docs.brew.sh/Homebrew-and-Python#python-3x). Once you have completed this setp you can install using the `pip` instructions above.
 
-- #### pull command
+#### Windows Requirements
+See how to install `python` and `pip` with [Chocolatey](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html). Once you have completed this setp you can install using the `pip` instructions above.
 
-```python
-# In first time, need to specific api_key, theme_id and store_url, then script will generate config.yml
+#### Updating Theme Kit
+
+Udpate to the latest version of Theme Kit with the following command:
+```
+pip install next-theme-kit --upgrade
+```
+
+### Usage
+Available commands:
+* ntk pull
+* ntk watch
+
+
+#### Pull theme files to your local machine
+Pull a theme from your store into your directory and create a config.yml file"
+```
 ntk pull -a={{ api_key }} -t={{ theme_id }} -s={{ store_url }}
+```
 
-# After that can use command without params like this
+With an existing config.yml in the current directory can simply use:
+```
 ntk pull
 ```
 
-- #### watch command
-```python
-ntk watch
+#### Watch for files changes and sync
+
 ```
-
-## How to run tests
-
-```python
-python setup.py test
+ntk watch
 ```

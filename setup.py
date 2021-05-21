@@ -13,14 +13,14 @@ setup(
     name='next-theme-kit',
     author="29next",
     author_email="dev@29next.com",
-    url='https://29next.com',
+    url='https://github.com/29next/theme-kit',
     long_description=long_description,
     long_description_content_type='text/markdown',
     version='0.0.1',
     install_requires=[
-        "PyYAML==5.4.1",
-        "requests==2.25.1",
-        "watchgod==0.7"
+        "PyYAML>=5.4",
+        "requests>=2.25",
+        "watchgod>=0.7"
     ],
     entry_points={
         'console_scripts': [
