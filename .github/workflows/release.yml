@@ -1,9 +1,6 @@
 name: Build distribution
 
-on:
-  push:
-    branches:
-      - master
+on: [push, pull_request]
 
 jobs:
   release:
