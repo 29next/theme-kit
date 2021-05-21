@@ -26,24 +26,88 @@ pip install next-theme-kit --upgrade
 ```
 
 ### Usage
-Available commands:
-* ntk pull
-* ntk watch
+With the package installed, you can now use the commands inside your theme directory and work on a storefront theme.
 
+**Available Commands**
+* `ntk init` - initialize a new theme
+* `ntk list` - list all available themes
+* `ntk checkout` - checkout an existing theme
+* `ntk pull` - download existing theme or theme file
+* `ntk push` - push current theme state to store
+* `ntk watch` - watch for local changes and automatically push changes to store
 
-#### Pull theme files to your local machine
-Pull a theme from your store into your directory and create a config.yml file"
+#### Init
+Initialize a new theme which will create the theme on a store and create an initial config.yml file
+
 ```
-ntk pull -a={{ api_key }} -t={{ theme_id }} -s={{ store_url }}
+ntk init
 ```
+##### Required flags without config.yml
+| Short | Long | Description|
+|--- | --- | --- |
+| -a | --apikey | API Key used to connect to the store.|
+| -s | --store | Full domain of the store. |
+| -n | --name | Name of the new theme |
 
-With an existing config.yml in the current directory can simply use:
+
+#### List
+List all themes installed on the theme.
 ```
-ntk pull
+ntk list
 ```
+##### Required flags without config.yml
+| Short | Long | Description|
+|--- | --- | --- |
+| -a | --apikey | API Key used to connect to the store.|
+| -s | --store | Full domain of the store. |
 
-#### Watch for files changes and sync
 
+#### Checkout
+Checkout a theme from your store to pull it into your directory.
+```
+ntk checkout
+```
+##### Required flags without config.yml
+| Short | Long | Description|
+|--- | --- | --- |
+| -a | --apikey | API Key used to connect to the store.|
+| -s | --store | Full domain of the store. |
+| -t | --theme_id | ID of the theme. |
+
+#### Pull
+Pull a theme from your store to into your directory.
+```
+ntk checkout
+```
+##### Required flags without config.yml
+| Short | Long | Description|
+|--- | --- | --- |
+| -a | --apikey | API Key used to connect to the store.|
+| -s | --store | Full domain of the store. |
+| -t | --theme_id | ID of the theme. |
+
+
+#### Push
+Push all theme files from your local direcotry to the store.
+```
+ntk push
+```
+##### Required flags without config.yml
+| Short | Long | Description|
+|--- | --- | --- |
+| -a | --apikey | API Key used to connect to the store.|
+| -s | --store | Full domain of the store. |
+| -t | --theme_id | ID of the theme. |
+
+
+#### Watch
+Watch for file changes and additions in your local directory and automatically push them to the store.
 ```
 ntk watch
 ```
+##### Required flags without config.yml
+| Short | Long | Description|
+|--- | --- | --- |
+| -a | --apikey | API Key used to connect to the store.|
+| -s | --store | Full domain of the store. |
+| -t | --theme_id | ID of the theme. |
