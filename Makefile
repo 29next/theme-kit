@@ -2,6 +2,6 @@
 VERSION := $(shell python3 setup.py --version)
 
 release:
-	echo $(shell git commit -m "Release v$(VERSION)")
-	echo $(shell git tag -a v$(VERSION) -m "Version $(VERSION)")
-	echo $(shell git push origin --tags)
+	@ git commit --allow-empty -m "Release v$(VERSION)"
+	@ git tag -a v$(VERSION) -m "Version $(VERSION)"
+	@ git push origin --tags
