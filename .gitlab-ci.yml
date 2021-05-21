@@ -1,0 +1,23 @@
+image: fkrull/multi-python
+
+stages:
+    - test
+    - release
+
+test:
+    stage: test
+    script:
+        - pip3 install .[test]
+        - pip3 install flake8
+        - flake8
+        - tox
+
+release:
+  stage: release
+  script:
+      - pip3 install twine
+      - python3 setup.py bdist_wheel sdist
+      - twine upload dist/* --skip-existing
+  only:
+    refs:
+      - master
