@@ -13,10 +13,10 @@ pip install next-theme-kit
 ```
 
 #### Mac OSX Requirements
-See how to install `python` and `pip` with [HomeBrew](https://docs.brew.sh/Homebrew-and-Python#python-3x). Once you have completed this setp you can install using the `pip` instructions above.
+See how to install `python` and `pip` with [HomeBrew](https://docs.brew.sh/Homebrew-and-Python#python-3x). Once you have completed this step you can install using the `pip` instructions above.
 
 #### Windows Requirements
-See how to install `python` and `pip` with [Chocolatey](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html). Once you have completed this setp you can install using the `pip` instructions above.
+See how to install `python` and `pip` with [Chocolatey](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html). Once you have completed this step you can install using the `pip` instructions above.
 
 #### Updating Theme Kit
 
