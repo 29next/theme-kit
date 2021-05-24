@@ -1,5 +1,7 @@
 from setuptools import setup
 
+__version__ = '0.0.3'
+
 tests_require = [
     "flake8==3.9.2",
     "nose==1.3.7"
@@ -16,7 +18,7 @@ setup(
     url='https://github.com/29next/theme-kit',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='0.0.1',
+    version=__version__,
     install_requires=[
         "PyYAML>=5.4",
         "requests>=2.25",
