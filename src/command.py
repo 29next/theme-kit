@@ -164,6 +164,7 @@ class Command:
         current_pathfile = os.path.join(os.getcwd())
         logging.info(f'[{config.env}] Current store {config.store}')
         logging.info(f'[{config.env}] Current theme id {config.theme_id}')
+        logging.info(f'[{config.env}] Preview theme URL {config.store}?preview_theme={config.theme_id}')
         logging.info(f'[{config.env}] Watching for file changes in {current_pathfile}')
         logging.info(f'[{config.env}] Press Ctrl + C to stop')
 
