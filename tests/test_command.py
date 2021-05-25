@@ -16,7 +16,6 @@ class TestCommand(unittest.TestCase):
             'store': 'http://simple.com'
         }
         self.parser = MagicMock(**config)
-        self.config = MagicMock(**config)
         self.command = Command()
 
         self.mock_file = mock_open(read_data='{% load i18n %}\n\n<div class=\"mt-2\">My home page</div>')
@@ -34,11 +33,10 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
 
     @patch('src.command.Gateway', autospec=True)
-    @patch("src.command.Config", autospec=True)
+    @patch("src.command.Config.write_config", autospec=True)
     def test_init_command_with_name_and_configs_should_be_call_create_theme_and_save_config(
-        self, mock_config, mock_gateway
+        self, mock_write_config, mock_gateway
     ):
-        mock_config.return_value = self.config
         mock_gateway.return_value.create_theme.return_value.json.return_value = {
             'id': 1234,
             'name': 'Test Init Theme',
@@ -46,9 +44,11 @@ class TestCommand(unittest.TestCase):
         }
         with self.assertLogs(level='INFO') as cm:
             self.parser.name = 'Test Init Theme'
+            self.parser.theme_id = None
             self.command.init(self.parser)
+
             expected_gateway_calls = [
-                call(store='http://simple.com', apikey='2b78f637972b1c9d'),
+                call(apikey='2b78f637972b1c9d', store='http://simple.com'),
                 call().create_theme({'name': 'Test Init Theme'}),
                 call().create_theme().json()
             ]
@@ -57,6 +57,8 @@ class TestCommand(unittest.TestCase):
 
         expected_logging = ['INFO:root:[development] Theme [1234] "Test Init Theme" has been created successfully.']
         self.assertEqual(cm.output, expected_logging)
+
+        mock_write_config.assert_called_once()
 
     #####
     # list
@@ -70,11 +72,10 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
 
     @patch('src.command.Gateway', autospec=True)
-    @patch("src.command.Config", autospec=True)
+    @patch("src.command.Config.write_config", autospec=True)
     def test_list_command_with_configs_should_be_show_theme_id_and_theme_name(
-        self, mock_config, mock_gateway
+        self, mock_write_config, mock_gateway
     ):
-        mock_config.return_value = self.config
         mock_gateway.return_value.get_themes.return_value.json.return_value = {
             "count": 2,
             "next": None,
@@ -109,6 +110,8 @@ class TestCommand(unittest.TestCase):
         ]
         self.assertEqual(cm.output, expected_logging)
 
+        mock_write_config.assert_not_called()
+
     #####
     # checkout
     #####
@@ -123,11 +126,10 @@ class TestCommand(unittest.TestCase):
 
     @patch("builtins.open", autospec=True)
     @patch('src.command.Gateway', autospec=True)
-    @patch('src.command.Config', autospec=True)
+    @patch("src.command.Config.write_config", autospec=True)
     def test_checkout_command_with_theme_id_and_configs_should_be_download_file_correctly(
-        self, mocker_config, mock_gateway, mock_open_file
+        self, mock_write_config, mock_gateway, mock_open_file
     ):
-        mocker_config.return_value = self.config
         mock_gateway.return_value.get_templates.return_value.json.return_value = [
             {
                 "theme": 1,
@@ -151,7 +153,6 @@ class TestCommand(unittest.TestCase):
             call(store='http://simple.com', apikey='2b78f637972b1c9d'),
             call().get_templates(1),
             call().get_templates().json(),
-            call(store='http://simple.com', apikey='2b78f637972b1c9d'),
             # get image file
             call()._request('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
         ]
@@ -168,6 +169,8 @@ class TestCommand(unittest.TestCase):
         self.assertIn(call().__enter__().write(
             '{% load i18n %}\n\n<div class="mt-2">My home page</div>'), mock_open_file.mock_calls)
 
+        mock_write_config.assert_called_once()
+
     #####
     # pull
     #####
@@ -182,11 +185,10 @@ class TestCommand(unittest.TestCase):
 
     @patch("builtins.open", autospec=True)
     @patch('src.command.Gateway', autospec=True)
-    @patch('src.command.Config', autospec=True)
+    @patch("src.command.Config.write_config", autospec=True)
     def test_pull_command_with_configs_and_without_filename_should_be_download_all_files(
-        self, mocker_config, mock_gateway, mock_open_file
+        self, mock_write_config, mock_gateway, mock_open_file
     ):
-        mocker_config.return_value = self.config
         mock_gateway.return_value.get_templates.return_value.json.return_value = [
             {
                 "theme": 1,
@@ -210,7 +212,6 @@ class TestCommand(unittest.TestCase):
             call(store='http://simple.com', apikey='2b78f637972b1c9d'),
             call().get_templates(1),
             call().get_templates().json(),
-            call(store='http://simple.com', apikey='2b78f637972b1c9d'),
             # get image file
             call()._request('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
         ]
@@ -226,14 +227,14 @@ class TestCommand(unittest.TestCase):
             call(os.path.join(os.getcwd(), 'layout/base.html'), 'w', encoding='utf-8'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(
             '{% load i18n %}\n\n<div class="mt-2">My home page</div>'), mock_open_file.mock_calls)
+        mock_write_config.assert_not_called()
 
     @patch("builtins.open", autospec=True)
     @patch('src.command.Gateway', autospec=True)
-    @patch('src.command.Config', autospec=True)
+    @patch("src.command.Config.write_config", autospec=True)
     def test_pull_command_with_configs_and_filenames_should_be_download_only_file_in_filenames(
-        self, mocker_config, mock_gateway, mock_open_file
+        self, mock_write_config, mock_gateway, mock_open_file
     ):
-        mocker_config.return_value = self.config
         mock_gateway.return_value.get_template.return_value.json.return_value = {
             "theme": 1,
             "name": "assets/image.png",
@@ -249,7 +250,6 @@ class TestCommand(unittest.TestCase):
             call(store='http://simple.com', apikey='2b78f637972b1c9d'),
             call().get_template(1, 'assets/image.png'),
             call().get_template().json(),
-            call(store='http://simple.com', apikey='2b78f637972b1c9d'),
             call()._request('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
         ]
 
@@ -259,6 +259,8 @@ class TestCommand(unittest.TestCase):
         self.assertIn(call(os.path.join(os.getcwd(), 'assets/image.png'), 'wb'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(b'\xc2\x89'), mock_open_file.mock_calls)
 
+        mock_write_config.assert_not_called()
+
     #####
     # watch (_handle_files_change)
     #####
@@ -266,6 +268,7 @@ class TestCommand(unittest.TestCase):
     def test_watch_command_should_call_gateway_with_correct_arguments_belong_to_files_change(self, mock_gateway):
         mock_gateway.return_value.create_update_template.return_value.status_code = 200
         mock_gateway.return_value.delete_template.return_value.status_code = 200
+        self.command.config.parser_config(self.parser)
 
         changes = {
             (Change.added, './assets/base.html'),
@@ -274,7 +277,7 @@ class TestCommand(unittest.TestCase):
         }
 
         with patch("builtins.open", self.mock_file):
-            self.command._handle_files_change(changes, self.config)
+            self.command._handle_files_change(changes)
 
             expected_call_init_gateway = call(store='http://simple.com', apikey='2b78f637972b1c9d')
             self.assertIn(expected_call_init_gateway, mock_gateway.mock_calls)
@@ -303,6 +306,7 @@ class TestCommand(unittest.TestCase):
         self, mock_gateway, mock_open_file
     ):
         mock_open_file.return_value = mock_img_file = MagicMock()
+        self.command.config.parser_config(self.parser)
 
         mock_gateway.return_value.create_update_template.return_value.status_code = 200
 
@@ -310,7 +314,7 @@ class TestCommand(unittest.TestCase):
             (Change.added, './assets/image.jpg'),
         ]
 
-        self.command._handle_files_change(changes, self.config)
+        self.command._handle_files_change(changes)
 
         # Change.added image
         expected_call_added = call().create_update_template(

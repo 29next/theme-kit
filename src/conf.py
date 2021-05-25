@@ -22,12 +22,13 @@ class Config(object):
     theme_id_required = True
 
     def __init__(self, **kwargs):
+        self.read_config()
         for name, value in kwargs.items():
             setattr(self, name, value)
 
     def parser_config(self, parser, write_file=False):
-        self.read_config()
         self.env = parser.env
+        self.read_config()
         if getattr(parser, 'apikey', None):
             self.apikey = parser.apikey
 
@@ -55,9 +56,8 @@ class Config(object):
         return True
 
     def read_config(self):
-        if not os.path.exists(CONFIG_FILE):
-            logging.warning(f'Could not find config file at {CONFIG_FILE}')
-        else:
+        configs = {}
+        if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE, "r") as yamlfile:
                 configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
                 yamlfile.close()
@@ -66,13 +66,10 @@ class Config(object):
                 self.apikey = configs[self.env].get('apikey')
                 self.store = configs[self.env].get('store')
                 self.theme_id = configs[self.env].get('theme_id')
+        return configs
 
     def write_config(self):
-        configs = {}
-        if os.path.exists(CONFIG_FILE):
-            with open(CONFIG_FILE, "r") as yamlfile:
-                configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
-                yamlfile.close()
+        configs = self.read_config()
 
         new_config = {
             'apikey': self.apikey,

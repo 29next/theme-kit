@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.conf import Config, CONFIG_FILE
+from src.conf import Config
 
 
 class TestConfig(unittest.TestCase):
@@ -13,13 +13,6 @@ class TestConfig(unittest.TestCase):
             'theme_id': 1
         }
         self.config = Config(**config)
-
-    def test_read_config_file_without_config_file_should_be_show_warning_message(self):
-        with self.assertLogs() as cm:
-            self.config.read_config()
-
-        expected_logging = [f'WARNING:root:Could not find config file at {CONFIG_FILE}']
-        self.assertEqual(cm.output, expected_logging)
 
     @patch("yaml.load", autospec=True)
     @patch("os.path.exists", autospec=True)
