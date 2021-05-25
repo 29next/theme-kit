@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.utils import Config
+from src.config import Config
 from src.conf import CONFIG_FILE
 
 

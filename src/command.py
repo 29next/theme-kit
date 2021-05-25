@@ -7,8 +7,9 @@ from watchgod import awatch
 from watchgod.watcher import Change
 
 from conf import MEDIA_FILE_EXTENSIONS
+from config import Config
 from gateway import Gateway
-from utils import Config, progress_bar
+from utils import progress_bar
 
 
 logging.basicConfig(
