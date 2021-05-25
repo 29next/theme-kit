@@ -103,7 +103,7 @@ class TestCommand(unittest.TestCase):
             self.assertEqual(mock_gateway.mock_calls, expected_gateway_calls)
 
         expected_logging = [
-            'INFO:root:[development] Available theme versions:',
+            'INFO:root:[development] Available themes:',
             'INFO:root:[development] \t[1234] \tDefault Theme',
             'INFO:root:[development] \t[1235] \tTest Init Theme'
         ]
