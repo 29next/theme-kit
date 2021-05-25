@@ -109,10 +109,12 @@ class Command:
                 config.theme_id = theme['id']
                 config.save()
                 logging.info(f'[{config.env}] Theme [{theme["id"]}] "{theme["name"]}" has been created successfully.')
+        else:
+            raise TypeError(f'[{config.env}] argument -n/--name is required.')
 
     def list(self, parser):
         config = Config(theme_id_required=False)
-        config.parser_config(parser, write_file=True)
+        config.parser_config(parser)
         gateway = Gateway(store=config.store, apikey=config.apikey)
         response = gateway.get_themes()
         themes = response.json()
@@ -122,7 +124,7 @@ class Command:
 
     def pull(self, parser):
         config = Config()
-        config.parser_config(parser, write_file=True)
+        config.parser_config(parser)
         gateway = Gateway(store=config.store, apikey=config.apikey)
         templates = []
         if parser.filenames:
@@ -149,7 +151,7 @@ class Command:
 
     def push(self, parser):
         config = Config()
-        config.parser_config(parser, write_file=True)
+        config.parser_config(parser)
         changes = []
         if parser.filenames:
             changes += [(Change.modified, filename) for filename in parser.filenames]
@@ -161,7 +163,7 @@ class Command:
 
     def watch(self, parser):
         config = Config()
-        config.parser_config(parser, write_file=True)
+        config.parser_config(parser)
         current_pathfile = os.path.join(os.getcwd())
         logging.info(f'[{config.env}] Current store {config.store}')
         logging.info(f'[{config.env}] Current theme id {config.theme_id}')
