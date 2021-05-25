@@ -55,21 +55,21 @@ class Config(object):
 
         return True
 
-    def read_config(self):
+    def read_config(self, update=True):
         configs = {}
         if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE, "r") as yamlfile:
                 configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
                 yamlfile.close()
 
-            if configs and configs.get(self.env):
+            if configs and configs.get(self.env) and update:
                 self.apikey = configs[self.env].get('apikey')
                 self.store = configs[self.env].get('store')
                 self.theme_id = configs[self.env].get('theme_id')
         return configs
 
     def write_config(self):
-        configs = self.read_config()
+        configs = self.read_config(update=False)
 
         new_config = {
             'apikey': self.apikey,
