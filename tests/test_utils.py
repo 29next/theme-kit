@@ -1,232 +1,154 @@
-import os
 import unittest
-from unittest.mock import call, MagicMock, mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
-from src.utils import _validate_config, create_and_get_config, get_config
+from src.utils import Config
 
 
-class TestUtils(unittest.TestCase):
+class TestConfig(unittest.TestCase):
     def setUp(self):
-        self.mock_file = mock_open(
-            read_data='development:\n  apikey: 2b78f637972b1c9d\n  store: http://development.com\n  theme_id: "1"\n'
-                      'sandbox:\n  apikey: 2b78f637972b1c9d\n  store: http://sandbox.com\n  theme_id: "5"\n'
-        )
-        self.config_file = os.path.join(os.getcwd(), 'config.yml')
-
-    #####
-    # _validate_config
-    #####
-    def test_validate_config_should_raise_expected_error(self):
-        with self.assertRaises(TypeError):
-            _validate_config('env', None, '1', 'http://simple.com')
-
-        with self.assertRaises(TypeError):
-            _validate_config('env', 'apikey', None, 'http://simple.com')
-
-        with self.assertRaises(TypeError):
-            _validate_config('env', 'apikey', '1', None)
-
-    #####
-    # get_config
-    #####
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_get_config_with_file_not_exist_and_parser_argument_is_none_should_raise_error(
-        self, mocker_path_exists
-    ):
-        mocker_path_exists.return_value = False
-        parser = MagicMock(env=None, apikey=None, theme_id=None, store=None)
-
-        with self.assertRaises(TypeError):
-            get_config(parser)
-
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_get_config_with_file_not_exist_and_parser_argument_is_not_none_should_return_config_belong_to_parser(
-        self, mocker_path_exists
-    ):
-        mocker_path_exists.return_value = False
-        parser = MagicMock(env='development', apikey='apikey', theme_id='1', store='http://simple.com')
-
-        config_info = get_config(parser)
-
-        self.assertEqual(config_info.env, 'development')
-        self.assertEqual(config_info.apikey, 'apikey')
-        self.assertEqual(config_info.theme_id, '1')
-        self.assertEqual(config_info.store, 'http://simple.com')
-
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_get_config_with_file_exists_and_parser_argument_is_none_should_get_config_info_from_file(
-        self, mocker_path_exists
-    ):
-        mocker_path_exists.return_value = True
-        parser = MagicMock(env='development', apikey=None, theme_id=None, store=None)
-
-        with patch('builtins.open', self.mock_file):
-            config_info = get_config(parser)
-
-            self.assertEqual(config_info.env, 'development')
-            self.assertEqual(config_info.apikey, '2b78f637972b1c9d')
-            self.assertEqual(config_info.theme_id, '1')
-            self.assertEqual(config_info.store, 'http://development.com')
-
-            expected_calls = [
-                call(self.config_file, 'r')
-            ]
-            self.assertEqual(self.mock_file.call_args_list, expected_calls)
-
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_get_config_with_file_exists_and_parser_argument_is_not_none_should_return_config_belong_to_parser(
-        self, mocker_path_exists
-    ):
-        mocker_path_exists.return_value = True
-        parser = MagicMock(env='development', apikey='apikey', theme_id='10', store=None)
-
-        with patch('builtins.open', self.mock_file):
-            config_info = get_config(parser)
-
-            self.assertEqual(config_info.env, 'development')
-            self.assertEqual(config_info.apikey, 'apikey')
-            self.assertEqual(config_info.theme_id, '10')
-            self.assertEqual(config_info.store, 'http://development.com')
-
-            expected_calls = [
-                call(self.config_file, 'r')
-            ]
-            self.assertEqual(self.mock_file.call_args_list, expected_calls)
-
-    @patch('src.utils.yaml.dump', autospec=True)
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_get_config_with_file_exists_and_parser_is_not_none_and_write_file_should_write_file_and_return_config(
-        self, mocker_path_exists, mock_yaml_dump
-    ):
-        mocker_path_exists.return_value = True
-        parser = MagicMock(env='development', apikey='apikey_value', theme_id='10', store=None)
-
-        with patch('builtins.open', self.mock_file):
-            config_info = get_config(parser, write_file=True)
-
-            self.assertEqual(config_info.env, 'development')
-            self.assertEqual(config_info.apikey, 'apikey_value')
-            self.assertEqual(config_info.theme_id, '10')
-            self.assertEqual(config_info.store, 'http://development.com')
-
-            expected_calls = [
-                call(self.config_file, 'r'),
-                call(self.config_file, 'w')
-            ]
-            self.assertEqual(self.mock_file.call_args_list, expected_calls)
-
-            # write file with expected config
-            expected_configs = {
-                'development': {'apikey': 'apikey_value', 'store': 'http://development.com', 'theme_id': '10'},
-                'sandbox': {'apikey': '2b78f637972b1c9d', 'store': 'http://sandbox.com', 'theme_id': '5'}
-            }
-            self.assertEqual(expected_configs, mock_yaml_dump.call_args.args[0])
-
-    #####
-    # create_and_get_config
-    #####
-    @patch('builtins.open', autospec=True)
-    @patch('src.utils.yaml.dump', autospec=True)
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_create_and_get_config_with_config_file_not_exist_should_create_file_and_return_expected_config(
-        self, mocker_path_exists, mock_yaml_dump, mock_open_file
-    ):
-        mocker_path_exists.return_value = False
-        parser = MagicMock(env='new_env', apikey='aasdasdqwqeew', theme_id='1', store='http://newenv.com')
-
-        config = create_and_get_config(parser)
-
-        self.assertEqual(config.env, 'new_env')
-        self.assertEqual(config.apikey, 'aasdasdqwqeew')
-        self.assertEqual(config.theme_id, '1')
-        self.assertEqual(config.store, 'http://newenv.com')
-
-        # write file with expected config
-        expected_configs = {
-            'new_env': {'apikey': 'aasdasdqwqeew', 'store': 'http://newenv.com', 'theme_id': '1'}
+        config = {
+            'env': 'development',
+            'apikey': '2b78f637972b1c9d',
+            'store': 'http://simple.com',
+            'theme_id': 1
         }
-        self.assertEqual(expected_configs, mock_yaml_dump.call_args.args[0])
+        self.config = Config(**config)
 
-        expected_calls = [
-            call(self.config_file, 'w')
-        ]
-        self.assertEqual(mock_open_file.call_args_list, expected_calls)
+    def test_read_config_file_without_config_file_should_be_show_warning_message(self):
+        with self.assertLogs() as cm:
+            self.config.read_config()
 
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_create_and_get_config_with_file_exists_and_parser_argument_is_none_should_read_and_get_config_from_file(
-        self, mocker_path_exists
-    ):
-        mocker_path_exists.return_value = True
-        parser = MagicMock(env='sandbox', apikey=None, theme_id=None, store=None)
+        expected_logging = ['WARNING:root:Could not find config file at /home/dev/works/github/theme-kit/config.yml']
+        self.assertEqual(cm.output, expected_logging)
 
-        with patch('builtins.open', self.mock_file):
-            config_info = create_and_get_config(parser)
-
-            self.assertEqual(config_info.env, 'sandbox')
-            self.assertEqual(config_info.apikey, '2b78f637972b1c9d')
-            self.assertEqual(config_info.theme_id, '5')
-            self.assertEqual(config_info.store, 'http://sandbox.com')
-
-            expected_calls = [
-                call(self.config_file, 'r')
-            ]
-            self.assertEqual(self.mock_file.call_args_list, expected_calls)
-
-    @patch('src.utils.yaml.dump', autospec=True)
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_create_and_get_config_with_file_exists_and_parser_is_not_none_should_write_file_and_update_config(
-        self, mocker_path_exists, mock_yaml_dump
-    ):
-        mocker_path_exists.return_value = True
-        parser = MagicMock(env='sandbox', apikey='apikey', theme_id='3', store='http://sandbox2.com')
-
-        with patch('builtins.open', self.mock_file):
-            config_info = create_and_get_config(parser)
-
-            self.assertEqual(config_info.env, 'sandbox')
-            self.assertEqual(config_info.apikey, 'apikey')
-            self.assertEqual(config_info.theme_id, '3')
-            self.assertEqual(config_info.store, 'http://sandbox2.com')
-
-            expected_calls = [
-                call(self.config_file, 'r'),
-                call(self.config_file, 'w')
-            ]
-            self.assertEqual(self.mock_file.call_args_list, expected_calls)
-
-            # write file with expected config
-            expected_configs = {
-                'development': {'apikey': '2b78f637972b1c9d', 'store': 'http://development.com', 'theme_id': '1'},
-                'sandbox': {'apikey': 'apikey', 'store': 'http://sandbox2.com', 'theme_id': '3'}
+    @patch("yaml.load", autospec=True)
+    @patch("os.path.exists", autospec=True)
+    def test_read_config_file_with_config_file_should_be_read_data_correctly(self, mock_patch_exists, mock_load_yaml):
+        mock_patch_exists.return_value = True
+        mock_load_yaml.return_value = {
+            'development': {
+                'apikey': '2b78f637972b1c9d1234',
+                'store': 'http://example.com',
+                'theme_id': 1234
             }
-            self.assertEqual(expected_configs, mock_yaml_dump.call_args.args[0])
+        }
+        with patch('builtins.open', mock_open(read_data='yaml data')):
+            self.config.read_config()
 
-    @patch('src.utils.yaml.dump', autospec=True)
-    @patch('src.utils.os.path.exists', autospec=True)
-    def test_create_and_get_config_with_file_exists_and_new_env_parser_should_write_file_and_update_config(
-        self, mocker_path_exists, mock_yaml_dump
+        self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')
+        self.assertEqual(self.config.store, 'http://example.com')
+        self.assertEqual(self.config.theme_id, 1234)
+
+    @patch("yaml.dump", autospec=True)
+    @patch("yaml.load", autospec=True)
+    @patch("os.path.exists", autospec=True)
+    def test_write_config_file_without_config_file_should_write_data_correctly(
+        self, mock_patch_exists, mock_load_yaml, mock_dump_yaml
     ):
-        mocker_path_exists.return_value = True
-        parser = MagicMock(env='production', apikey='apikey_production', theme_id='3', store='http://production.com')
-
-        with patch('builtins.open', self.mock_file):
-            config_info = create_and_get_config(parser)
-
-            self.assertEqual(config_info.env, 'production')
-            self.assertEqual(config_info.apikey, 'apikey_production')
-            self.assertEqual(config_info.theme_id, '3')
-            self.assertEqual(config_info.store, 'http://production.com')
-
-            expected_calls = [
-                call(self.config_file, 'r'),
-                call(self.config_file, 'w')
-            ]
-            self.assertEqual(self.mock_file.call_args_list, expected_calls)
-
-            # write file with expected config
-            expected_configs = {
-                'development': {'apikey': '2b78f637972b1c9d', 'store': 'http://development.com', 'theme_id': '1'},
-                'sandbox': {'apikey': '2b78f637972b1c9d', 'store': 'http://sandbox.com', 'theme_id': '5'},
-                'production': {'apikey': 'apikey_production', 'theme_id': '3', 'store': 'http://production.com'}
+        mock_patch_exists.return_value = True
+        mock_dump_yaml.return_value = 'yaml data'
+        mock_load_yaml.return_value = {
+            'sandbox': {
+                'apikey': '2b78f637972b1c9dabcd',
+                'store': 'http://sandbox.com',
+                'theme_id': 5678
             }
-            self.assertEqual(expected_configs, mock_yaml_dump.call_args.args[0])
+        }
+
+        self.config.apikey = '2b78f637972b1c9d1234'
+        self.config.store = 'http://example.com'
+        self.config.theme_id = 1234
+
+        config = {
+            'sandbox': {
+                'apikey': '2b78f637972b1c9dabcd',
+                'store': 'http://sandbox.com',
+                'theme_id': 5678
+            },
+            'development': {
+                'apikey': '2b78f637972b1c9d1234',
+                'store': 'http://example.com',
+                'theme_id': 1234
+            }
+        }
+
+        with patch('builtins.open', mock_open()):
+            with open('config.yml') as f:
+                self.config.write_config()
+                mock_dump_yaml.assert_called_once_with(config, f)
+
+    def test_validate_config_should_raise_expected_error(self):
+        with self.assertRaises(TypeError) as error:
+            self.config.apikey = None
+            self.config.store = 'http://example.com'
+            self.config.theme_id = 1234
+            self.config.validate_config()
+        self.assertEqual(str(error.exception), '[development] argument -a/--apikey is required.')
+
+        with self.assertRaises(TypeError) as error:
+            self.config.apikey = '2b78f637972b1c9d1234'
+            self.config.store = None
+            self.config.theme_id = 1234
+            self.config.validate_config()
+        self.assertEqual(str(error.exception), '[development] argument -s/--store is required.')
+
+        with self.assertRaises(TypeError) as error:
+            self.config.apikey = '2b78f637972b1c9d1234'
+            self.config.store = 'http://example.com'
+            self.config.theme_id = None
+            self.config.validate_config()
+        self.assertEqual(str(error.exception), '[development] argument -t/--theme_id is required.')
+
+        self.config.apikey = None
+        self.config.store = None
+        self.config.theme_id = None
+
+        with self.assertRaises(TypeError) as error:
+            self.config.validate_config()
+        self.assertEqual(str(error.exception),
+                         '[development] argument -a/--apikey, -s/--store, -t/--theme_id are required.')
+
+        with self.assertRaises(TypeError) as error:
+            self.config.apikey_required = True
+            self.config.store_required = True
+            self.config.theme_id_required = False
+            self.config.validate_config()
+        self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
+
+    def test_save_config_should_validate_and_write_config_correctly(self):
+        with patch("src.utils.Config.write_config") as mock_write_config:
+            with patch("src.utils.Config.validate_config") as mock_validate_config:
+                self.config.save()
+        mock_validate_config.assert_called_once()
+        mock_write_config.assert_called_once()
+
+        with patch("src.utils.Config.write_config") as mock_write_config:
+            with patch("src.utils.Config.validate_config") as mock_validate_config:
+                self.config.save(write_file=False)
+        mock_validate_config.assert_called_once()
+        mock_write_config.assert_not_called()
+
+    def test_parser_config_should_set_config_config_correctly(self):
+        config = {
+            'env': 'sandbox',
+            'apikey': '2b78f637972b1c9d1234',
+            'store': 'http://sandbox.com',
+            'theme_id': 1234
+        }
+        parser = MagicMock(**config)
+
+        with patch("src.utils.Config.write_config") as mock_write_config:
+            self.config.parser_config(parser=parser)
+
+        self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')
+        self.assertEqual(self.config.store, 'http://sandbox.com')
+        self.assertEqual(self.config.theme_id, 1234)
+        mock_write_config.assert_not_called()
+
+        with patch("src.utils.Config.write_config") as mock_write_config:
+            self.config.parser_config(parser=parser, write_file=True)
+
+        self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')
+        self.assertEqual(self.config.store, 'http://sandbox.com')
+        self.assertEqual(self.config.theme_id, 1234)
+        mock_write_config.assert_called_once()

@@ -13,6 +13,21 @@ class Gateway:
 
         return requests.request(request_type, url, headers=headers, data=payload, files=files)
 
+    def get_themes(self):
+        url = f"{self.store}/api/admin/themes/"
+
+        return self._request("GET", url, apikey=self.apikey)
+
+    def create_theme(self, payload):
+        url = f"{self.store}/api/admin/themes/"
+
+        return self._request("POST", url, apikey=self.apikey, payload=payload)
+
+    def get_template(self, theme_id, filename):
+        url = f"{self.store}/api/admin/themes/{theme_id}/templates/?name={filename}"
+
+        return self._request("GET", url, apikey=self.apikey)
+
     def get_templates(self, theme_id):
         url = f"{self.store}/api/admin/themes/{theme_id}/templates/"
 

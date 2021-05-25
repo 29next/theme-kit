@@ -36,6 +36,32 @@ class TestGateway(unittest.TestCase):
         self.assertEqual(mock_request.mock_calls, expected_calls)
 
     #####
+    # get_themes
+    #####
+    @patch('src.gateway.requests.request', autospec=True)
+    def test_get_themes(self, mock_request):
+        self.gateway.get_themes()
+
+        expected_calls = [call(
+            'GET', 'http://simple.com/api/admin/themes/',
+            headers={'Authorization': 'Token apikey'}, data={}, files={})]
+        self.assertEqual(mock_request.mock_calls, expected_calls)
+
+    ####
+    # create_theme
+    @patch('src.gateway.requests.request', autospec=True)
+    def test_create_theme(self, mock_request):
+        payload = {
+            "name": "Test Init Theme"
+        }
+        self.gateway.create_theme(payload)
+
+        expected_calls = [call(
+            'POST', 'http://simple.com/api/admin/themes/',
+            headers={'Authorization': 'Token apikey'}, data=payload, files={})]
+        self.assertEqual(mock_request.mock_calls, expected_calls)
+
+    #####
     # get_templates
     #####
     @patch('src.gateway.requests.request', autospec=True)
@@ -44,6 +70,20 @@ class TestGateway(unittest.TestCase):
 
         expected_calls = [call(
             'GET', 'http://simple.com/api/admin/themes/6/templates/',
+            headers={'Authorization': 'Token apikey'}, data={}, files={})]
+        self.assertEqual(mock_request.mock_calls, expected_calls)
+
+    #####
+    # get_template
+    #####
+    @patch('src.gateway.requests.request', autospec=True)
+    def test_get_template(self, mock_request):
+        filename = 'assets/custom.css'
+
+        self.gateway.get_template(6, filename)
+
+        expected_calls = [call(
+            'GET', f'http://simple.com/api/admin/themes/6/templates/?name={filename}',
             headers={'Authorization': 'Token apikey'}, data={}, files={})]
         self.assertEqual(mock_request.mock_calls, expected_calls)
 

@@ -1,6 +1,6 @@
 # 29 Next Theme Kit
 
-Theme Kit is a cross-plaform command line tool to build and maintain storefront themes on the 29 Next platform.
+Theme Kit is a cross-platform command line tool to build and maintain storefront themes on the 29 Next platform.
 
 ### Installation
 
@@ -20,7 +20,7 @@ See how to install `python` and `pip` with [Chocolatey](https://python-docs.read
 
 #### Updating Theme Kit
 
-Udpate to the latest version of Theme Kit with the following command:
+Update to the latest version of Theme Kit with the following command:
 ```
 pip install next-theme-kit --upgrade
 ```
@@ -88,7 +88,7 @@ ntk pull
 
 
 #### Push
-Push all theme files from your local direcotry to the store.
+Push all theme files from your local directory to the store.
 ```
 ntk push
 ```

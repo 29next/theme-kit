@@ -8,7 +8,7 @@ from watchgod.watcher import Change
 
 from conf import MEDIA_FILE_EXTENSIONS
 from gateway import Gateway
-from utils import create_and_get_config, progress_bar, get_config
+from utils import Config, progress_bar
 
 
 logging.basicConfig(
@@ -26,9 +26,10 @@ class Command:
             # change window path .\partials\alert_messages.html -> partials/alert_messages.html
             template_name = pathfile.replace('\\', '/').replace('./', '')
             current_pathfile = os.path.join(os.getcwd(), template_name)
+            template_name = os.path.relpath(current_pathfile)
 
             if current_pathfile.endswith(('.py', '.yml', '.conf')):
-                return
+                continue
 
             logging.info(f'[{config.env}] {str(event_type)} {template_name}')
             logging.info(f'[{config.env}] Uploading {template_name}')
@@ -61,12 +62,8 @@ class Command:
                     error_msg = ' '.join(result.get('file', []))
                 logging.error(f'[{config.env}] {template_name} -> {error_msg}')
 
-    def pull(self, parser):
-        config = create_and_get_config(parser)
-
+    def _pull_themplates(self, templates, config):
         gateway = Gateway(store=config.store, apikey=config.apikey)
-        response = gateway.get_templates(config.theme_id)
-        templates = response.json()
 
         if type(templates) != list:
             logging.info(f'Theme id #{config.theme_id} don\'t exist in the system.')
@@ -99,8 +96,71 @@ class Command:
 
             time.sleep(0.08)
 
+    def init(self, parser):
+        config = Config(theme_id_required=False)
+        config.parser_config(parser, write_file=True)
+
+        if parser.name:
+            gateway = Gateway(store=config.store, apikey=config.apikey)
+            response = gateway.create_theme({'name': parser.name})
+            theme = response.json()
+            if theme and theme.get('id'):
+                config.theme_id = theme['id']
+                config.save()
+                logging.info(f'[{config.env}] Theme [{theme["id"]}] "{theme["name"]}" has been created successfully.')
+
+    def list(self, parser):
+        config = Config(theme_id_required=False)
+        config.parser_config(parser, write_file=True)
+        gateway = Gateway(store=config.store, apikey=config.apikey)
+        response = gateway.get_themes()
+        themes = response.json()
+        logging.info(f'[{config.env}] Available theme versions:')
+        for theme in themes['results']:
+            logging.info(f'[{config.env}] \t[{theme["id"]}] \t{theme["name"]}')
+
+    def pull(self, parser):
+        config = Config()
+        config.parser_config(parser, write_file=True)
+        gateway = Gateway(store=config.store, apikey=config.apikey)
+        templates = []
+        if parser.filenames:
+            for filename in parser.filenames:
+                response = gateway.get_template(config.theme_id, filename)
+                templates.append(response.json())
+        else:
+            response = gateway.get_templates(config.theme_id)
+            templates = response.json()
+
+        # start pulling templates
+        self._pull_themplates(templates, config)
+
+    def checkout(self, parser):
+        config = Config()
+        config.parser_config(parser, write_file=True)
+
+        gateway = Gateway(store=config.store, apikey=config.apikey)
+        response = gateway.get_templates(config.theme_id)
+        templates = response.json()
+
+        # start pulling templates
+        self._pull_themplates(templates, config)
+
+    def push(self, parser):
+        config = Config()
+        config.parser_config(parser, write_file=True)
+        changes = []
+        if parser.filenames:
+            changes += [(Change.modified, filename) for filename in parser.filenames]
+        else:
+            for (dirpath, dirnames, filenames) in os.walk(os.getcwd()):
+                changes += [(Change.modified, os.path.join(dirpath, file)) for file in filenames]
+
+        self._handle_files_change(changes, config)
+
     def watch(self, parser):
-        config = get_config(parser)
+        config = Config()
+        config.parser_config(parser, write_file=True)
         current_pathfile = os.path.join(os.getcwd())
         logging.info(f'[{config.env}] Current store {config.store}')
         logging.info(f'[{config.env}] Current theme id {config.theme_id}')

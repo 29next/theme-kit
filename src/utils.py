@@ -1,13 +1,9 @@
-import collections
 import logging
 import os
 import time
 import yaml
 
 from conf import CONFIG_FILE
-
-
-Config = collections.namedtuple('Config', 'env apikey theme_id store')
 
 
 def progress_bar(iterable, prefix='', suffix='', decimals=1, length=100, fill='â–ˆ', printEnd="\r"):
@@ -24,6 +20,9 @@ def progress_bar(iterable, prefix='', suffix='', decimals=1, length=100, fill='â
         printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
     """
     total = len(iterable)
+
+    if total == 0:
+        return
 
     # Progress Bar Printing Function
     def print_progress_bar(iteration):
@@ -43,84 +42,83 @@ def progress_bar(iterable, prefix='', suffix='', decimals=1, length=100, fill='â
     print()
 
 
-def _validate_config(env, apikey, theme_id, store):
-    error_msgs = []
-    if not apikey:
-        error_msgs.append('-a/--apikey')
-    if not theme_id:
-        error_msgs.append('-t/--theme_id')
-    if not store:
-        error_msgs.append('-s/--store')
+class Config(object):
+    apikey = None
+    store = None
+    theme_id = None
 
-    if error_msgs:
-        message = ', '.join(error_msgs)
-        pluralize = 'is' if len(error_msgs) == 1 else 'are'
-        raise TypeError(f'[{env}] argument {message} {pluralize} required')
+    env = 'development'
 
+    apikey_required = True
+    store_required = True
+    theme_id_required = True
 
-def get_config(parser, write_file=False):
-    configs = {}
-    env = parser.env
-    if not os.path.exists(CONFIG_FILE):
-        logging.warning(f'Could not find config file at {CONFIG_FILE}')
-    else:
-        with open(CONFIG_FILE, "r") as yamlfile:
-            configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
-            yamlfile.close()
+    def __init__(self, **kwargs):
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
-    if configs and configs.get(env):
+    def parser_config(self, parser, write_file=False):
+        self.read_config()
+        self.env = parser.env
         if getattr(parser, 'apikey', None):
-            configs[env]['apikey'] = parser.apikey
+            self.apikey = parser.apikey
 
         if getattr(parser, 'theme_id', None):
-            configs[env]['theme_id'] = parser.theme_id
+            self.theme_id = parser.theme_id
 
         if getattr(parser, 'store', None):
-            configs[env]['store'] = parser.store
-    else:
-        if configs is None:
-            configs = {}
+            self.store = parser.store
 
-        configs[env] = {
-            "apikey": getattr(parser, 'apikey', None),
-            "theme_id": getattr(parser, 'theme_id', None),
-            "store": getattr(parser, 'store', None)
+        self.save(write_file)
+
+    def validate_config(self):
+        error_msgs = []
+        if self.apikey_required and not self.apikey:
+            error_msgs.append('-a/--apikey')
+        if self.store_required and not self.store:
+            error_msgs.append('-s/--store')
+        if self.theme_id_required and not self.theme_id:
+            error_msgs.append('-t/--theme_id')
+        if error_msgs:
+            message = ', '.join(error_msgs)
+            pluralize = 'is' if len(error_msgs) == 1 else 'are'
+            raise TypeError(f'[{self.env}] argument {message} {pluralize} required.')
+
+        return True
+
+    def read_config(self):
+        if not os.path.exists(CONFIG_FILE):
+            logging.warning(f'Could not find config file at {CONFIG_FILE}')
+        else:
+            with open(CONFIG_FILE, "r") as yamlfile:
+                configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
+                yamlfile.close()
+
+            if configs and configs.get(self.env):
+                self.apikey = configs[self.env].get('apikey')
+                self.store = configs[self.env].get('store')
+                self.theme_id = configs[self.env].get('theme_id')
+
+    def write_config(self):
+        configs = {}
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, "r") as yamlfile:
+                configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
+                yamlfile.close()
+
+        new_config = {
+            'apikey': self.apikey,
+            'store': self.store,
+            'theme_id': self.theme_id
         }
+        # If the config has been changed, then the config will be saved to config.yml.
+        if configs.get(self.env) != new_config:
+            configs[self.env] = new_config
+            with open(CONFIG_FILE, 'w') as yamlfile:
+                yaml.dump(configs, yamlfile)
+                yamlfile.close()
+            logging.info(f'[{self.env}] ConfigurationÂ was updated.')
 
-    _validate_config(env, configs[env]['apikey'], configs[env]['theme_id'], configs[env]['store'])
-
-    is_config_update = False
-    if getattr(parser, 'apikey', None) or getattr(parser, 'theme_id', None) or getattr(parser, 'store', None):
-        is_config_update = True
-
-    if write_file and is_config_update:
-        with open(CONFIG_FILE, 'w') as yamlfile:
-            yaml.dump(configs, yamlfile)
-            yamlfile.close()
-
-    return Config(
-        env,
-        configs[env]['apikey'],
-        configs[env]['theme_id'],
-        configs[env]['store']
-    )
-
-
-def create_and_get_config(parser):
-    config = {}
-    env = parser.env
-    if not os.path.exists(CONFIG_FILE):
-        _validate_config(env, parser.apikey, parser.theme_id, parser.store)
-
-        config[env] = {
-            "apikey": getattr(parser, 'apikey', None),
-            "theme_id": getattr(parser, 'theme_id', None),
-            "store": getattr(parser, 'store', None)
-        }
-        with open(CONFIG_FILE, 'w') as yamlfile:
-            yaml.dump(config, yamlfile)
-            yamlfile.close()
-
-        return Config(env, config[env]['apikey'], config[env]['theme_id'], config[env]['store'])
-    else:
-        return get_config(parser, write_file=True)
+    def save(self, write_file=True):
+        if self.validate_config() and write_file:
+            self.write_config()
