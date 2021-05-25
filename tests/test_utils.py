@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
 from src.utils import Config
+from src.conf import CONFIG_FILE
 
 
 class TestConfig(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestConfig(unittest.TestCase):
         with self.assertLogs() as cm:
             self.config.read_config()
 
-        expected_logging = ['WARNING:root:Could not find config file at /home/dev/works/github/theme-kit/config.yml']
+        expected_logging = [f'WARNING:root:Could not find config file at {CONFIG_FILE}']
         self.assertEqual(cm.output, expected_logging)
 
     @patch("yaml.load", autospec=True)
