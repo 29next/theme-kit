@@ -117,7 +117,7 @@ class Command:
         gateway = Gateway(store=config.store, apikey=config.apikey)
         response = gateway.get_themes()
         themes = response.json()
-        logging.info(f'[{config.env}] Available theme versions:')
+        logging.info(f'[{config.env}] Available themes:')
         for theme in themes['results']:
             logging.info(f'[{config.env}] \t[{theme["id"]}] \t{theme["name"]}')
 
