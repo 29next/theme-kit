@@ -1,8 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-from src.config import Config
-from src.conf import CONFIG_FILE
+from src.conf import Config, CONFIG_FILE
 
 
 class TestConfig(unittest.TestCase):
@@ -117,14 +116,14 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
 
     def test_save_config_should_validate_and_write_config_correctly(self):
-        with patch("src.config.Config.write_config") as mock_write_config:
-            with patch("src.config.Config.validate_config") as mock_validate_config:
+        with patch("src.conf.Config.write_config") as mock_write_config:
+            with patch("src.conf.Config.validate_config") as mock_validate_config:
                 self.config.save()
         mock_validate_config.assert_called_once()
         mock_write_config.assert_called_once()
 
-        with patch("src.config.Config.write_config") as mock_write_config:
-            with patch("src.config.Config.validate_config") as mock_validate_config:
+        with patch("src.conf.Config.write_config") as mock_write_config:
+            with patch("src.conf.Config.validate_config") as mock_validate_config:
                 self.config.save(write_file=False)
         mock_validate_config.assert_called_once()
         mock_write_config.assert_not_called()
@@ -138,7 +137,7 @@ class TestConfig(unittest.TestCase):
         }
         parser = MagicMock(**config)
 
-        with patch("src.config.Config.write_config") as mock_write_config:
+        with patch("src.conf.Config.write_config") as mock_write_config:
             self.config.parser_config(parser=parser)
 
         self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')
@@ -146,7 +145,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(self.config.theme_id, 1234)
         mock_write_config.assert_not_called()
 
-        with patch("src.config.Config.write_config") as mock_write_config:
+        with patch("src.conf.Config.write_config") as mock_write_config:
             self.config.parser_config(parser=parser, write_file=True)
 
         self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')

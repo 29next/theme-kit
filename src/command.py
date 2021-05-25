@@ -6,8 +6,7 @@ import time
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from conf import MEDIA_FILE_EXTENSIONS
-from config import Config
+from conf import Config, MEDIA_FILE_EXTENSIONS
 from gateway import Gateway
 from utils import progress_bar
 
@@ -67,7 +66,7 @@ class Command:
         gateway = Gateway(store=config.store, apikey=config.apikey)
 
         if type(templates) != list:
-            logging.info(f'Theme id #{config.theme_id} don\'t exist in the system.')
+            logging.info(f'Theme id #{config.theme_id} doesn\'t exist in the system.')
             return
 
         template_count = len(templates)
