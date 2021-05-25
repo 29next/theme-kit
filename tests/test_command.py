@@ -112,6 +112,34 @@ class TestCommand(unittest.TestCase):
 
         mock_write_config.assert_not_called()
 
+    @patch('src.command.Gateway', autospec=True)
+    @patch("src.command.Config.write_config", autospec=True)
+    def test_list_command_with_missing_theme_should_be_raise_message(
+        self, mock_write_config, mock_gateway
+    ):
+        mock_gateway.return_value.get_themes.return_value.json.return_value = {
+            "count": 0,
+            "next": None,
+            "previous": None,
+            "results": []
+        }
+        with self.assertLogs(level='INFO') as cm:
+            self.command.list(self.parser)
+            expected_gateway_calls = [
+                call(store='http://simple.com', apikey='2b78f637972b1c9d'),
+                call().get_themes(),
+                call().get_themes().json()
+            ]
+
+            self.assertEqual(mock_gateway.mock_calls, expected_gateway_calls)
+
+        expected_logging = [
+            'WARNING:root:[development] Missing Themes in http://simple.com'
+        ]
+        self.assertEqual(cm.output, expected_logging)
+
+        mock_write_config.assert_not_called()
+
     #####
     # checkout
     #####

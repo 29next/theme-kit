@@ -21,10 +21,8 @@ logging.basicConfig(
 class Command:
     def __init__(self):
         self.config = Config()
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
 
     def _handle_files_change(self, changes):
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
         for event_type, pathfile in changes:
             template_name = get_template_name(pathfile)
             current_pathfile = os.path.join(os.getcwd(), template_name)
@@ -40,7 +38,7 @@ class Command:
                 self._delete_templates([template_name])
 
     def _push_themplates(self, template_names):
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
+        gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
         template_count = len(template_names)
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
@@ -65,7 +63,7 @@ class Command:
                     payload['content'] = f.read()
                     f.close()
 
-            response = self.gateway.create_update_template(self.config.theme_id, payload=payload, files=files)
+            response = gateway.create_update_template(self.config.theme_id, payload=payload, files=files)
             if not response.ok:
                 result = response.json()
                 error_msg = f'Can\'t update to theme id #{self.config.theme_id}.'
@@ -76,15 +74,15 @@ class Command:
                 logging.error(f'[{self.config.env}] {template_name} -> {error_msg}')
 
     def _pull_themplates(self, template_names):
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
+        gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
         templates = []
         if template_names:
             for filename in template_names:
                 template_name = get_template_name(filename)
-                response = self.gateway.get_template(self.config.theme_id, template_name)
+                response = gateway.get_template(self.config.theme_id, template_name)
                 templates.append(response.json())
         else:
-            response = self.gateway.get_templates(self.config.theme_id)
+            response = gateway.get_templates(self.config.theme_id)
             templates = response.json()
 
         if type(templates) != list:
@@ -107,7 +105,7 @@ class Command:
 
             # write file
             if template['file']:
-                response = self.gateway._request("GET", template['file'])
+                response = gateway._request("GET", template['file'])
                 with open(current_pathfile, "wb") as media_file:
                     media_file.write(response.content)
                     media_file.close()
@@ -119,7 +117,7 @@ class Command:
             time.sleep(0.08)
 
     def _delete_templates(self, template_names):
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
+        gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
         template_count = len(template_names)
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Deleting {template_count} files from theme id {self.config.theme_id}')
@@ -127,7 +125,7 @@ class Command:
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = get_template_name(template_name)
-            response = self.gateway.delete_template(self.config.theme_id, template_name)
+            response = gateway.delete_template(self.config.theme_id, template_name)
             if not response.ok:
                 result = response.json()
                 error_msg = f'Can\'t delete to theme id #{self.config.theme_id}.'
@@ -138,10 +136,10 @@ class Command:
     def init(self, parser):
         self.config.theme_id_required = False
         self.config.parser_config(parser)
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
 
         if parser.name:
-            response = self.gateway.create_theme({'name': parser.name})
+            gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
+            response = gateway.create_theme({'name': parser.name})
             theme = response.json()
             if theme and theme.get('id'):
                 self.config.theme_id = theme['id']
@@ -154,15 +152,15 @@ class Command:
     def list(self, parser):
         self.config.theme_id_required = False
         self.config.parser_config(parser)
-        self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
-        response = self.gateway.get_themes()
+        gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
+        response = gateway.get_themes()
         themes = response.json()
-        if themes:
+        if themes and themes.get('results'):
             logging.info(f'[{self.config.env}] Available themes:')
             for theme in themes['results']:
                 logging.info(f'[{self.config.env}] \t[{theme["id"]}] \t{theme["name"]}')
         else:
-            logging.info(f'Missing Themes in {self.config.store}')
+            logging.warning(f'[{self.config.env}] Missing Themes in {self.config.store}')
 
     def pull(self, parser):
         self.config.parser_config(parser)
