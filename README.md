@@ -1,3 +1,7 @@
+<!-- Badges -->
+[![PyPI Version][pypi-v-image]][pypi-v-link]
+[![Build Status][GHAction-image]][GHAction-link]
+
 # 29 Next Theme Kit
 
 Theme Kit is a cross-plaform command line tool to build and maintain storefront themes on the 29 Next platform.
@@ -111,3 +115,10 @@ ntk watch
 | -a | --apikey | API Key used to connect to the store.|
 | -s | --store | Full domain of the store. |
 | -t | --theme_id | ID of the theme. |
+
+
+<!-- Badges -->
+[pypi-v-image]: https://img.shields.io/pypi/v/next-theme-kit.svg
+[pypi-v-link]: https://pypi.org/project/next-theme-kit/
+[GHAction-image]: https://github.com/29next/theme-kit/actions/workflows/test.yml/badge.svg?branch=master
+[GHAction-link]: https://github.com/29next/theme-kit/actions?query=event%3Apush+branch%3Amaster
