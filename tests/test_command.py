@@ -65,7 +65,6 @@ class TestCommand(unittest.TestCase):
                 call().create_theme(name='Test Init Theme'),
                 call().create_theme().json()
             ]
-            print(self.mock_gateway.mock_calls)
             self.assertEqual(self.mock_gateway.mock_calls, expected_gateway_calls)
 
         expected_logging = ['INFO:root:[development] Theme [1234] "Test Init Theme" has been created successfully.']
@@ -323,7 +322,7 @@ class TestCommand(unittest.TestCase):
         with patch("builtins.open", self.mock_file):
             self.command._handle_files_change(changes)
             content = '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
-            print(self.mock_gateway.mock_calls)
+
             # Change.added
             expected_call_added = call().create_or_update_template(
                 theme_id=1234, template_name='assets/base.html', content=content, files={})
