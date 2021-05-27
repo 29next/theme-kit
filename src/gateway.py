@@ -1,4 +1,5 @@
 import requests
+from decorator import check_error
 
 
 class Gateway:
@@ -13,31 +14,44 @@ class Gateway:
 
         return requests.request(request_type, url, headers=headers, data=payload, files=files)
 
+    @check_error(error_format='Missing Themes in {store}')
     def get_themes(self):
         url = f"{self.store}/api/admin/themes/"
 
         return self._request("GET", url, apikey=self.apikey)
 
-    def create_theme(self, payload):
+    @check_error(error_format='Creating theme "{name}" to {store} failed.{error_msg}')
+    def create_theme(self, name):
         url = f"{self.store}/api/admin/themes/"
+
+        payload = dict(name=name)
 
         return self._request("POST", url, apikey=self.apikey, payload=payload)
 
-    def get_template(self, theme_id, filename):
-        url = f"{self.store}/api/admin/themes/{theme_id}/templates/?name={filename}"
+    @check_error(error_format='Downloading {template_name} file from theme id #{theme_id} failed.{error_msg}')
+    def get_template(self, theme_id, template_name):
+        url = f"{self.store}/api/admin/themes/{theme_id}/templates/?name={template_name}"
 
         return self._request("GET", url, apikey=self.apikey)
 
+    @check_error(error_format='Downloading templates files from theme id #{theme_id} failed.{error_msg}')
     def get_templates(self, theme_id):
         url = f"{self.store}/api/admin/themes/{theme_id}/templates/"
 
         return self._request("GET", url, apikey=self.apikey)
 
-    def create_update_template(self, theme_id, payload, files):
+    @check_error(error_format='Uploading {template_name} file to theme id #{theme_id} failed.{error_msg}')
+    def create_or_update_template(self, theme_id, template_name, content=None, files=None):
         url = f"{self.store}/api/admin/themes/{theme_id}/templates/"
+
+        payload = dict(
+            name=template_name,
+            content=content
+        )
 
         return self._request("POST", url, apikey=self.apikey, payload=payload, files=files)
 
+    @check_error(error_format='Deleting {template_name} file from theme id #{theme_id} failed.{error_msg}')
     def delete_template(self, theme_id, template_name):
         url = f"{self.store}/api/admin/themes/{theme_id}/templates/?name={template_name}"
 

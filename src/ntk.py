@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import logging
 
+from requests.exceptions import HTTPError
+
 from ntk_parser import Parser
 
 logging.basicConfig(
@@ -17,8 +19,8 @@ def main():
         args.func(args)
     except AttributeError:
         print('Use ntk -h to see available commands')
-    except TypeError as e:
-        logging.error(e)
+    except (TypeError, HTTPError) as e:
+        logging.exception(e, exc_info=False)
     except KeyboardInterrupt:
         pass
 
