@@ -114,9 +114,10 @@ class TestCommand(unittest.TestCase):
 
         expected_logging = [
             'INFO:root:[development] Available themes:',
-            'INFO:root:[development] \t[1234] \tDefault Theme',
+            'INFO:root:[development] \t[1234] \tDefault Theme (Active)',
             'INFO:root:[development] \t[1235] \tTest Init Theme'
         ]
+        print(cm.output)
         self.assertEqual(cm.output, expected_logging)
 
         mock_write_config.assert_not_called()

@@ -156,7 +156,8 @@ class Command:
         if themes and themes.get('results'):
             logging.info(f'[{self.config.env}] Available themes:')
             for theme in themes['results']:
-                logging.info(f'[{self.config.env}] \t[{theme["id"]}] \t{theme["name"]}')
+                theme_active = " (Active)" if theme.get("active") else ""
+                logging.info(f'[{self.config.env}] \t[{theme.get("id")}] \t{theme.get("name")}{theme_active}')
         else:
             logging.warning(f'[{self.config.env}] Missing Themes in {self.config.store}')
 
