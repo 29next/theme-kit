@@ -145,7 +145,7 @@ class Command:
                         f'[{self.config.env}] Theme [{theme["id"]}] "{theme["name"]}" has been created successfully.')
             else:
                 logging.error(
-                    f'[{self.config.env}] Theme "{parser.name}" has been created failed.')
+                    f'[{self.config.env}] Theme "{parser.name}" creation failed.')
         else:
             raise TypeError(f'[{self.config.env}] argument -n/--name is required.')
 
