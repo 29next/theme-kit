@@ -170,7 +170,6 @@ class Command:
 
     @parser_config()
     def push(self, parser):
-        self.config.parser_config(parser)
         template_names = []
         if parser.filenames:
             template_names += parser.filenames
@@ -181,7 +180,6 @@ class Command:
 
     @parser_config()
     def watch(self, parser):
-        self.config.parser_config(parser)
         current_pathfile = os.path.join(os.getcwd())
         logging.info(f'[{self.config.env}] Current store {self.config.store}')
         logging.info(f'[{self.config.env}] Current theme id {self.config.theme_id}')
