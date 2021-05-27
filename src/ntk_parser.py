@@ -10,17 +10,15 @@ class Parser:
     def _add_config_arguments(self, parser):
         parser.add_argument('-a', '--apikey', action="store", dest="apikey", help=argparse.SUPPRESS)
         parser.add_argument('-s', '--store', action="store", dest="store", help=argparse.SUPPRESS)
-        parser.add_argument(
-            '-t', '--theme_id', action="store", dest="theme_id", help=argparse.SUPPRESS)
-        parser.add_argument(
-            '-e', '--env', action="store", dest="env", default='development', help=argparse.SUPPRESS)
+        parser.add_argument('-t', '--theme_id', action="store", type=int, dest="theme_id", help=argparse.SUPPRESS)
+        parser.add_argument('-e', '--env', action="store", dest="env", default='development', help=argparse.SUPPRESS)
 
     def create_parser(self):
         option_commands = '''
 options:
-    -a, --apikey        API key
-    -s, --store         Store URL
-    -t, --theme_id      Theme ID
+    -a, --apikey        API Key used to connect to the store.
+    -s, --store         Full domain of the store.
+    -t, --theme_id      ID of the theme.
     -e, --env           Environment to run the command(default [development])'''
 
         # create the top-level parser
@@ -30,8 +28,12 @@ Usage:
     ntk [command] [options]
 
 available commands:
-    pull        Download all files from a theme
-    watch       Push updates to your theme
+    init        Initialize a new theme which will create the theme on a store and create an initial config.yml file.
+    list        List all themes installed on the theme.
+    checkout    Checkout a theme from your store to pull it into your directory.
+    pull        Pull a theme from your store to into your directory.
+    push        Push all theme files from your local direcotry to the store.
+    watch       Watch for file changes and additions in your local directory and automatically push them to the store.
 ''' + option_commands,
             usage=argparse.SUPPRESS,
             epilog='Use "ntk [command] --help" for more information about a command.',
@@ -40,6 +42,46 @@ available commands:
         )
         subparsers = parser.add_subparsers(title='Available Commands', help=argparse.SUPPRESS)
 
+        # create the parser for the "init" command
+        parser_init = subparsers.add_parser(
+            'init',
+            help='init',
+            usage=argparse.SUPPRESS,
+            description='''
+Usage:
+    ntk init [options]
+''' + option_commands,
+            formatter_class=argparse.RawTextHelpFormatter)
+        parser_init.set_defaults(func=self.command.init)
+        self._add_config_arguments(parser_init)
+        parser_init.add_argument('-n', '--name', action="store", dest="name", help=argparse.SUPPRESS)
+
+        # create the parser for the "list" command
+        parser_list = subparsers.add_parser(
+            'list',
+            help='List all themes installed on the theme.',
+            usage=argparse.SUPPRESS,
+            description='''
+Usage:
+    ntk list [options]
+''' + option_commands,
+            formatter_class=argparse.RawTextHelpFormatter)
+        parser_list.set_defaults(func=self.command.list)
+        self._add_config_arguments(parser_list)
+
+        # create the parser for the "checkout" command
+        parser_checkout = subparsers.add_parser(
+            'checkout',
+            help='Download a specific theme',
+            usage=argparse.SUPPRESS,
+            description='''
+Usage:
+    ntk checkout [options]
+''' + option_commands,
+            formatter_class=argparse.RawTextHelpFormatter)
+        parser_checkout.set_defaults(func=self.command.checkout)
+        self._add_config_arguments(parser_checkout)
+
         # create the parser for the "pull" command
         parser_pull = subparsers.add_parser(
             'pull',
@@ -47,11 +89,26 @@ available commands:
             usage=argparse.SUPPRESS,
             description='''
 Usage:
-    ntk pull [options]
+    ntk pull [options] [Filename ...]
 ''' + option_commands,
             formatter_class=argparse.RawTextHelpFormatter)
         parser_pull.set_defaults(func=self.command.pull)
+        parser_pull.add_argument('filenames', metavar='filenames', type=str, nargs='*', help=argparse.SUPPRESS)
         self._add_config_arguments(parser_pull)
+
+        # create the parser for the "push" command
+        parser_push = subparsers.add_parser(
+            'push',
+            help='Download a specific theme',
+            usage=argparse.SUPPRESS,
+            description='''
+Usage:
+    ntk push [options] [Filename ...]
+''' + option_commands,
+            formatter_class=argparse.RawTextHelpFormatter)
+        parser_push.set_defaults(func=self.command.push)
+        parser_push.add_argument('filenames', metavar='filenames', type=str, nargs='*', help=argparse.SUPPRESS)
+        self._add_config_arguments(parser_push)
 
         # create the parser for the "watch" command
         parser_watch = subparsers.add_parser(
