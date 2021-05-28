@@ -20,7 +20,7 @@ class Gateway:
 
         return self._request("GET", url, apikey=self.apikey)
 
-    @check_error(error_format='Creating theme "{name}" to {store} failed.{error_msg}')
+    @check_error(error_format='Theme "{name}" creation failed.{error_msg}')
     def create_theme(self, name):
         url = f"{self.store}/api/admin/themes/"
 
