@@ -45,7 +45,7 @@ class Command:
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
 
         for template_name in progress_bar(
-                template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete\n', length=50):
+                template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = get_template_name(template_name)
             current_pathfile = os.path.join(os.getcwd(), template_name)
 

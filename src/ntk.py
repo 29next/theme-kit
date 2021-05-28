@@ -20,6 +20,8 @@ def main():
     except AttributeError:
         print('Use ntk -h to see available commands')
     except (TypeError, HTTPError) as e:
+        # print new line for support error on process progress bar
+        print()
         logging.exception(e, exc_info=False)
     except KeyboardInterrupt:
         pass
