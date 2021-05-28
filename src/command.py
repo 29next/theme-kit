@@ -50,10 +50,7 @@ class Command:
             current_pathfile = os.path.join(os.getcwd(), template_name)
 
             files = {}
-            payload = {
-                'name': template_name,
-                'content': ''
-            }
+            content = ''
             if current_pathfile.endswith(('.py', '.yml', '.conf')):
                 continue
 
@@ -61,28 +58,21 @@ class Command:
                 files = {'file': (template_name, open(current_pathfile, 'rb'))}
             else:
                 with open(current_pathfile, 'r') as f:
-                    payload['content'] = f.read()
+                    content = f.read()
                     f.close()
 
-            response = self.gateway.create_update_template(self.config.theme_id, payload=payload, files=files)
-            if not response.ok:
-                result = response.json()
-                error_msg = f'Can\'t update to theme id #{self.config.theme_id}.'
-                if result.get('content'):
-                    error_msg = ' '.join(result.get('content', []))
-                if result.get('file'):
-                    error_msg = ' '.join(result.get('file', []))
-                logging.error(f'[{self.config.env}] {template_name} -> {error_msg}')
+            self.gateway.create_or_update_template(
+                theme_id=self.config.theme_id, template_name=template_name, content=content, files=files)
 
     def _pull_themplates(self, template_names):
         templates = []
         if template_names:
             for filename in template_names:
                 template_name = get_template_name(filename)
-                response = self.gateway.get_template(self.config.theme_id, template_name)
+                response = self.gateway.get_template(theme_id=self.config.theme_id, template_name=template_name)
                 templates.append(response.json())
         else:
-            response = self.gateway.get_templates(self.config.theme_id)
+            response = self.gateway.get_templates(theme_id=self.config.theme_id)
             templates = response.json()
 
         if type(templates) != list:
@@ -124,28 +114,18 @@ class Command:
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = get_template_name(template_name)
-            response = self.gateway.delete_template(self.config.theme_id, template_name)
-            if not response.ok:
-                result = response.json()
-                error_msg = f'Can\'t delete to theme id #{self.config.theme_id}.'
-                if result.get('detail'):
-                    error_msg = ' '.join(result.get('detail', []))
-                logging.error(f'[{self.config.env}] {template_name} -> {error_msg}')
+            self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
 
     @parser_config(theme_id_required=False)
     def init(self, parser):
         if parser.name:
-            response = self.gateway.create_theme({'name': parser.name})
-            if response.ok:
-                theme = response.json()
-                if theme and theme.get('id'):
-                    self.config.theme_id = theme['id']
-                    self.config.save()
-                    logging.info(
-                        f'[{self.config.env}] Theme [{theme["id"]}] "{theme["name"]}" has been created successfully.')
-            else:
-                logging.error(
-                    f'[{self.config.env}] Theme "{parser.name}" creation failed.')
+            response = self.gateway.create_theme(name=parser.name)
+            theme = response.json()
+            if theme and theme.get('id'):
+                self.config.theme_id = theme['id']
+                self.config.save()
+                logging.info(
+                    f'[{self.config.env}] Theme [{theme["id"]}] "{theme["name"]}" has been created successfully.')
         else:
             raise TypeError(f'[{self.config.env}] argument -n/--name is required.')
 

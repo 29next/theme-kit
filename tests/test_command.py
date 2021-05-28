@@ -49,6 +49,7 @@ class TestCommand(unittest.TestCase):
     @patch("src.command.Config.write_config", autospec=True)
     def test_init_command_with_name_and_configs_should_be_call_create_theme_and_save_config(self, mock_write_config):
         self.mock_gateway.return_value.create_theme.return_value.ok = True
+        self.mock_gateway.return_value.create_theme.return_value.headers = {'content-type': 'application/json'}
         self.mock_gateway.return_value.create_theme.return_value.json.return_value = {
             'id': 1234,
             'name': 'Test Init Theme',
@@ -61,7 +62,7 @@ class TestCommand(unittest.TestCase):
 
             expected_gateway_calls = [
                 call(store=None, apikey=None),
-                call().create_theme({'name': 'Test Init Theme'}),
+                call().create_theme(name='Test Init Theme'),
                 call().create_theme().json()
             ]
             self.assertEqual(self.mock_gateway.mock_calls, expected_gateway_calls)
@@ -85,6 +86,7 @@ class TestCommand(unittest.TestCase):
     @patch("src.command.Config.write_config", autospec=True)
     def test_list_command_with_configs_should_be_show_theme_id_and_theme_name(self, mock_write_config):
         self.mock_gateway.return_value.get_themes.return_value.ok = True
+        self.mock_gateway.return_value.get_themes.return_value.headers = {'content-type': 'application/json'}
         self.mock_gateway.return_value.get_themes.return_value.json.return_value = {
             "count": 2,
             "next": None,
@@ -117,7 +119,6 @@ class TestCommand(unittest.TestCase):
             'INFO:root:[development] \t[1234] \tDefault Theme (Active)',
             'INFO:root:[development] \t[1235] \tTest Init Theme'
         ]
-        print(cm.output)
         self.assertEqual(cm.output, expected_logging)
 
         mock_write_config.assert_not_called()
@@ -127,6 +128,7 @@ class TestCommand(unittest.TestCase):
         self, mock_write_config
     ):
         self.mock_gateway.return_value.get_themes.return_value.ok = True
+        self.mock_gateway.return_value.get_themes.return_value.headers = {'content-type': 'application/json'}
         self.mock_gateway.return_value.get_themes.return_value.json.return_value = {
             "count": 0,
             "next": None,
@@ -168,6 +170,7 @@ class TestCommand(unittest.TestCase):
         self, mock_write_config, mock_open_file
     ):
         self.mock_gateway.return_value.get_templates.return_value.ok = True
+        self.mock_gateway.return_value.get_templates.return_value.headers = {'content-type': 'application/json'}
         self.mock_gateway.return_value.get_templates.return_value.json.return_value = [
             {
                 "theme": 1234,
@@ -189,7 +192,7 @@ class TestCommand(unittest.TestCase):
 
         expected_gateway_calls = [
             call(store=None, apikey=None),
-            call().get_templates(1234),
+            call().get_templates(theme_id=1234),
             call().get_templates().json(),
             # get image file
             call()._request('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
@@ -247,7 +250,7 @@ class TestCommand(unittest.TestCase):
 
         expected_gateway_calls = [
             call(store=None, apikey=None),
-            call().get_templates(1234),
+            call().get_templates(theme_id=1234),
             call().get_templates().json(),
             # get image file
             call()._request('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
@@ -272,6 +275,7 @@ class TestCommand(unittest.TestCase):
         self, mock_write_config, mock_open_file
     ):
         self.mock_gateway.return_value.get_template.return_value.ok = True
+        self.mock_gateway.return_value.get_template.return_value.headers = {'content-type': 'application/json'}
         self.mock_gateway.return_value.get_template.return_value.json.return_value = {
             "theme": 1234,
             "name": "assets/image.png",
@@ -285,7 +289,7 @@ class TestCommand(unittest.TestCase):
 
         expected_gateway_calls = [
             call(store=None, apikey=None),
-            call().get_template(1234, 'assets/image.png'),
+            call().get_template(theme_id=1234, template_name='assets/image.png'),
             call().get_template().json(),
             call()._request('GET', 'https://d36qje162qkq4w.cloudfront.net/media/sandbox/themes/5/assets/image.png')
         ]
@@ -302,8 +306,11 @@ class TestCommand(unittest.TestCase):
     # watch (_handle_files_change)
     #####
     def test_watch_command_should_call_gateway_with_correct_arguments_belong_to_files_change(self):
-        self.mock_gateway.return_value.create_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json'}
         self.mock_gateway.return_value.delete_template.return_value.ok = True
+        self.mock_gateway.return_value.delete_template.return_value.headers = {'content-type': 'application/json'}
         self.command.config.parser_config(self.parser)
 
         changes = {
@@ -314,23 +321,21 @@ class TestCommand(unittest.TestCase):
 
         with patch("builtins.open", self.mock_file):
             self.command._handle_files_change(changes)
+            content = '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
 
             # Change.added
-            expected_call_added = call().create_update_template(1234, payload={
-                'name': 'assets/base.html',
-                'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
-            }, files={})
+            expected_call_added = call().create_or_update_template(
+                theme_id=1234, template_name='assets/base.html', content=content, files={})
             self.assertIn(expected_call_added, self.mock_gateway.mock_calls)
 
             # Change.modified
-            expected_call_modified = call().create_update_template(1234, payload={
-                'name': 'layout/base.html',
-                'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
-            }, files={})
+            expected_call_modified = call().create_or_update_template(
+                theme_id=1234, template_name='layout/base.html', content=content, files={})
             self.assertIn(expected_call_modified, self.mock_gateway.mock_calls)
 
             # Change.deleted
-            expected_call_deleted = call().delete_template(1234, 'layout/base.html')
+            expected_call_deleted = call().delete_template(
+                theme_id=1234, template_name='layout/base.html')
             self.assertIn(expected_call_deleted, self.mock_gateway.mock_calls)
 
     @patch("builtins.open", autospec=True)
@@ -338,7 +343,9 @@ class TestCommand(unittest.TestCase):
         mock_open_file.return_value = mock_img_file = MagicMock()
         self.command.config.parser_config(self.parser)
 
-        self.mock_gateway.return_value.create_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json'}
 
         changes = [
             (Change.added, './assets/image.jpg'),
@@ -347,9 +354,10 @@ class TestCommand(unittest.TestCase):
         self.command._handle_files_change(changes)
 
         # Change.added image
-        expected_call_added = call().create_update_template(
-            1234,
-            payload={'name': 'assets/image.jpg', 'content': ''},
+        expected_call_added = call().create_or_update_template(
+            theme_id=1234,
+            template_name='assets/image.jpg',
+            content='',
             files={'file': ('assets/image.jpg', mock_img_file)}
         )
         self.assertIn(expected_call_added, self.mock_gateway.mock_calls)
