@@ -51,7 +51,8 @@ class Gateway:
 
         return self._request("POST", url, apikey=self.apikey, payload=payload, files=files)
 
-    @check_error(error_format='Deleting {template_name} file from theme id #{theme_id} failed.{error_msg}')
+    @check_error(error_format='Deleting {template_name} file from theme id #{theme_id} failed.{error_msg}',
+                 response_json=False)
     def delete_template(self, theme_id, template_name):
         url = f"{self.store}/api/admin/themes/{theme_id}/templates/?name={template_name}"
 

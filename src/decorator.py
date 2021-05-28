@@ -29,7 +29,7 @@ def parser_config(*args, **kwargs):
     return _decorator
 
 
-def check_error(error_format='{error_default} -> {error_msg}', **kwargs):
+def check_error(error_format='{error_default} -> {error_msg}', response_json=True, **kwargs):
     """Decorator for check response error from request API"""
 
     def _decorator(func):
@@ -38,7 +38,9 @@ def check_error(error_format='{error_default} -> {error_msg}', **kwargs):
             response = func(self, *func_args, **func_kwargs)
             error_default = f'{func.__name__.capitalize().replace("_", " ")} of {self.store} failed.'
             error_msg = ""
-            if response.ok and response.headers.get('content-type') == 'application/json':
+            if response.ok and not response_json:
+                return response
+            elif response.ok and response.headers.get('content-type') == 'application/json':
                 return response
             elif response.headers.get('content-type') == 'application/json':
                 result = response.json()
