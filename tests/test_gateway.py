@@ -69,7 +69,7 @@ class TestGateway(unittest.TestCase):
             self.gateway.create_theme(name="Test Init Theme")
         self.assertEqual(
             str(error.exception),
-            'Creating theme "Test Init Theme" to http://simple.com failed.')
+            'Theme "Test Init Theme" creation failed.')
 
         # check if call request complated
         mock_request.return_value.ok = True
