@@ -1,5 +1,6 @@
 import requests
-from decorator import check_error
+
+from ntk.decorator import check_error
 
 
 class Gateway:

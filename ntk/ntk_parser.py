@@ -1,6 +1,6 @@
 import argparse
 
-from command import Command
+from ntk.command import Command
 
 
 class Parser:

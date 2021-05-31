@@ -4,13 +4,13 @@ from unittest.mock import call, MagicMock, mock_open, patch
 
 from watchgod.watcher import Change
 
-from src.command import Command
+from ntk.command import Command
 
 
 class TestCommand(unittest.TestCase):
     @patch("os.path.exists", autospec=True)
     @patch("yaml.load", autospec=True)
-    @patch('src.command.Gateway', autospec=True)
+    @patch('ntk.command.Gateway', autospec=True)
     def setUp(self, mock_gateway, mock_load_yaml, mock_patch_exists):
         mock_patch_exists.return_value = True
         mock_load_yaml.return_value = {
@@ -46,7 +46,7 @@ class TestCommand(unittest.TestCase):
             self.command.init(self.parser)
         self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
 
-    @patch("src.command.Config.write_config", autospec=True)
+    @patch("ntk.command.Config.write_config", autospec=True)
     def test_init_command_with_name_and_configs_should_be_call_create_theme_and_save_config(self, mock_write_config):
         self.mock_gateway.return_value.create_theme.return_value.ok = True
         self.mock_gateway.return_value.create_theme.return_value.headers = {'content-type': 'application/json'}
@@ -83,7 +83,7 @@ class TestCommand(unittest.TestCase):
             self.command.list(self.parser)
         self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
 
-    @patch("src.command.Config.write_config", autospec=True)
+    @patch("ntk.command.Config.write_config", autospec=True)
     def test_list_command_with_configs_should_be_show_theme_id_and_theme_name(self, mock_write_config):
         self.mock_gateway.return_value.get_themes.return_value.ok = True
         self.mock_gateway.return_value.get_themes.return_value.headers = {'content-type': 'application/json'}
@@ -123,7 +123,7 @@ class TestCommand(unittest.TestCase):
 
         mock_write_config.assert_not_called()
 
-    @patch("src.command.Config.write_config", autospec=True)
+    @patch("ntk.command.Config.write_config", autospec=True)
     def test_list_command_with_missing_theme_should_be_raise_message(
         self, mock_write_config
     ):
@@ -165,7 +165,7 @@ class TestCommand(unittest.TestCase):
             str(error.exception), '[development] argument -a/--apikey, -s/--store, -t/--theme_id are required.')
 
     @patch("builtins.open", autospec=True)
-    @patch("src.command.Config.write_config", autospec=True)
+    @patch("ntk.command.Config.write_config", autospec=True)
     def test_checkout_command_with_theme_id_and_configs_should_be_download_file_correctly(
         self, mock_write_config, mock_open_file
     ):
@@ -225,7 +225,7 @@ class TestCommand(unittest.TestCase):
             str(error.exception), '[development] argument -a/--apikey, -s/--store, -t/--theme_id are required.')
 
     @patch("builtins.open", autospec=True)
-    @patch("src.command.Config.write_config", autospec=True)
+    @patch("ntk.command.Config.write_config", autospec=True)
     def test_pull_command_with_configs_and_without_filename_should_be_download_all_files(
         self, mock_write_config, mock_open_file
     ):
@@ -270,7 +270,7 @@ class TestCommand(unittest.TestCase):
         mock_write_config.assert_not_called()
 
     @patch("builtins.open", autospec=True)
-    @patch("src.command.Config.write_config", autospec=True)
+    @patch("ntk.command.Config.write_config", autospec=True)
     def test_pull_command_with_configs_and_filenames_should_be_download_only_file_in_filenames(
         self, mock_write_config, mock_open_file
     ):

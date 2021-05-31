@@ -6,10 +6,10 @@ import time
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from conf import Config, MEDIA_FILE_EXTENSIONS
-from decorator import parser_config
-from gateway import Gateway
-from utils import get_template_name, progress_bar
+from ntk.conf import Config, MEDIA_FILE_EXTENSIONS
+from ntk.decorator import parser_config
+from ntk.gateway import Gateway
+from ntk.utils import get_template_name, progress_bar
 
 
 logging.basicConfig(
