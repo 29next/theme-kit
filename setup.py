@@ -1,6 +1,6 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 tests_require = [
     "flake8==3.9.2",
@@ -26,9 +26,9 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ntk = ntk:main',
+            'ntk = ntk.ntk:main',
         ],
     },
-    package_dir={'': 'src'},
+    packages=find_packages(),
     python_requires='>=3.6'
 )

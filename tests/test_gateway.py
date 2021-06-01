@@ -3,7 +3,7 @@ from unittest.mock import call, MagicMock, patch
 
 from requests.models import HTTPError
 
-from src.gateway import Gateway
+from ntk.gateway import Gateway
 
 
 class TestGateway(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestGateway(unittest.TestCase):
     #####
     # _request
     #####
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_request(self, mock_request):
         request_type = 'POST'
         url = 'http://simple.com/api/admin/themes/5/templates/'
@@ -40,7 +40,7 @@ class TestGateway(unittest.TestCase):
     #####
     # get_themes
     #####
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_get_themes(self, mock_request):
         # check if call request failed
         mock_request.return_value.ok = True
@@ -61,7 +61,7 @@ class TestGateway(unittest.TestCase):
 
     ####
     # create_theme
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_create_theme(self, mock_request):
         # check if call request failed
         mock_request.return_value.headers = {'content-type': 'text/html'}
@@ -86,7 +86,7 @@ class TestGateway(unittest.TestCase):
     #####
     # get_templates
     #####
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_get_templates(self, mock_request):
         # check if call request failed
         mock_request.return_value.ok = True
@@ -110,7 +110,7 @@ class TestGateway(unittest.TestCase):
     #####
     # get_template
     #####
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_get_template(self, mock_request):
         template_name = 'assets/custom.css'
         # check if call request failed
@@ -134,7 +134,7 @@ class TestGateway(unittest.TestCase):
     #####
     # create_or_update_template
     #####
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_create_or_update_template(self, mock_request):
         # check if call request failed
         with self.assertRaises(HTTPError) as error:
@@ -163,7 +163,7 @@ class TestGateway(unittest.TestCase):
     #####
     # delete_template
     #####
-    @patch('src.gateway.requests.request', autospec=True)
+    @patch('ntk.gateway.requests.request', autospec=True)
     def test_delete_template(self, mock_request):
         mock_request.return_value.headers = {'content-type': 'application/json'}
         # check if call request failed

@@ -3,7 +3,7 @@ import logging
 
 from requests.exceptions import HTTPError
 
-from ntk_parser import Parser
+from ntk.ntk_parser import Parser
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
