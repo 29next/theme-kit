@@ -306,7 +306,7 @@ class TestCommand(unittest.TestCase):
     #####
     # watch (_handle_files_change)
     #####
-    @patch("ntk.command.Command.get_accept_files", autospec=True)
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
     def test_watch_command_should_call_gateway_with_correct_arguments_belong_to_files_change(
         self, mock_get_accept_file
     ):
@@ -341,7 +341,7 @@ class TestCommand(unittest.TestCase):
                 theme_id=1234, template_name='layout/base.html')
             self.assertIn(expected_call_deleted, self.mock_gateway.mock_calls)
 
-    @patch("ntk.command.Command.get_accept_files", autospec=True)
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
     @patch("builtins.open", autospec=True)
     def test_watch_command_with_create_image_file_should_call_gateway_with_correct_arguments(
         self, mock_open_file, mock_get_accept_file

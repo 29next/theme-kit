@@ -25,6 +25,21 @@ class Command:
         self.config = Config()
         self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
 
+    def _get_accept_files(self, template_names):
+        files = []
+        glob_list = map(lambda x: os.path.abspath(x), GLOB_PATTERN)
+        for pattern in glob_list:
+            files.extend(glob.glob(pattern))
+
+        if template_names:
+            filenames = list(map(lambda x: os.path.abspath(x), template_names))
+            template_names = list(filter(lambda x: x in files, filenames))
+        else:
+            template_names = files
+
+        return template_names
+
+
     def _handle_files_change(self, changes):
         for event_type, pathfile in changes:
             template_name = get_template_name(pathfile)
@@ -36,7 +51,7 @@ class Command:
                 self._delete_templates([template_name])
 
     def _push_templates(self, template_names):
-        template_names = self.get_accept_files(template_names)
+        template_names = self._get_accept_files(template_names)
         template_count = len(template_names)
 
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
@@ -160,17 +175,3 @@ class Command:
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
-
-    def get_accept_files(self, template_names):
-        files = []
-        glob_list = map(lambda x: os.path.abspath(x), GLOB_PATTERN)
-        for pattern in glob_list:
-            files.extend(glob.glob(pattern))
-
-        if template_names:
-            filenames = list(map(lambda x: os.path.abspath(x), template_names))
-            template_names = list(filter(lambda x: x in files, filenames))
-        else:
-            template_names = files
-
-        return template_names
