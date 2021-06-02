@@ -7,23 +7,28 @@ CONFIG_FILE_NAME = './config.yml'
 CONFIG_FILE = os.path.abspath(CONFIG_FILE_NAME)
 
 CONTENT_FILE_EXTENSIONS = ['.html', '.json', '.css', '.js']
-MEDIA_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.woff', '.woff2', '.ico']
+MEDIA_FILE_EXTENSIONS = [
+    '.woff2', '.gif', '.ico', '.png', '.jpg', '.jpeg', '.svg', '.eot', '.tff', '.ttf', '.woff',
+    '.webp', '.mp4', '.webm', '.mp3', '.pdf',
+]
 GLOB_PATTERN = [
+    "assets/**/*.html",
+    "assets/**/*.json",
+    "assets/**/*.css",
+    "assets/**/*.scss",
+    "assets/**/*.js",
+
     "assets/**/*.woff2",
     "assets/**/*.gif",
     "assets/**/*.ico",
-    "assets/**/*.html",
-    "assets/**/*.json",
     "assets/**/*.png",
     "assets/**/*.jpg",
     "assets/**/*.jpeg",
     "assets/**/*.svg",
-    "assets/**/*.css",
-    "assets/**/*.scss",
     "assets/**/*.eot",
     "assets/**/*.tff",
+    "assets/**/*.ttf",
     "assets/**/*.woff",
-    "assets/**/*.js",
     "assets/**/*.webp",
     "assets/**/*.mp4",
     "assets/**/*.webm",
