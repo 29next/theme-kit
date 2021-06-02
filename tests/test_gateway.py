@@ -45,11 +45,14 @@ class TestGateway(unittest.TestCase):
         # check if call request failed
         mock_request.return_value.ok = True
         mock_request.return_value.headers = {'content-type': 'text/html'}
-        with self.assertRaises(HTTPError) as error:
+
+        with self.assertLogs(level='INFO') as log:
             self.gateway.get_themes()
-        self.assertEqual(
-            str(error.exception),
-            'Missing Themes in http://simple.com')
+
+        expected_logging = [
+            'INFO:root:Missing Themes in http://simple.com'
+        ]
+        self.assertEqual(log.output, expected_logging)
 
         # check if call request complated
         mock_request.return_value.headers = {'content-type': 'application/json'}
@@ -65,11 +68,14 @@ class TestGateway(unittest.TestCase):
     def test_create_theme(self, mock_request):
         # check if call request failed
         mock_request.return_value.headers = {'content-type': 'text/html'}
-        with self.assertRaises(HTTPError) as error:
+
+        with self.assertLogs(level='INFO') as log:
             self.gateway.create_theme(name="Test Init Theme")
-        self.assertEqual(
-            str(error.exception),
-            'Theme "Test Init Theme" creation failed.')
+
+        expected_logging = [
+            'INFO:root:Theme "Test Init Theme" creation failed.'
+        ]
+        self.assertEqual(log.output, expected_logging)
 
         # check if call request complated
         mock_request.return_value.ok = True
@@ -91,11 +97,14 @@ class TestGateway(unittest.TestCase):
         # check if call request failed
         mock_request.return_value.ok = True
         mock_request.return_value.headers = {'content-type': 'text/html'}
-        with self.assertRaises(HTTPError) as error:
+
+        with self.assertLogs(level='INFO') as log:
             self.gateway.get_templates(theme_id=6)
-        self.assertEqual(
-            str(error.exception),
-            'Downloading templates files from theme id #6 failed.')
+
+        expected_logging = [
+            'INFO:root:Downloading templates files from theme id #6 failed.'
+        ]
+        self.assertEqual(log.output, expected_logging)
 
         # check if call request complated
         mock_request.return_value.ok = True
@@ -114,12 +123,14 @@ class TestGateway(unittest.TestCase):
     def test_get_template(self, mock_request):
         template_name = 'assets/custom.css'
         # check if call request failed
-        with self.assertRaises(HTTPError) as error:
+        with self.assertLogs(level='INFO') as log:
             mock_request.return_value.ok = False
             self.gateway.get_template(theme_id=6, template_name=template_name)
-        self.assertEqual(
-            str(error.exception),
-            'Downloading assets/custom.css file from theme id #6 failed.')
+
+        expected_logging = [
+            'INFO:root:Downloading assets/custom.css file from theme id #6 failed.'
+        ]
+        self.assertEqual(log.output, expected_logging)
 
         # check if call request complated
         mock_request.return_value.ok = True
@@ -137,12 +148,14 @@ class TestGateway(unittest.TestCase):
     @patch('ntk.gateway.requests.request', autospec=True)
     def test_create_or_update_template(self, mock_request):
         # check if call request failed
-        with self.assertRaises(HTTPError) as error:
+        with self.assertLogs(level='INFO') as log:
             mock_request.return_value.ok = False
             self.gateway.create_or_update_template(theme_id=6, template_name='asset/custom.css')
-        self.assertEqual(
-            str(error.exception),
-            'Uploading asset/custom.css file to theme id #6 failed.')
+
+        expected_logging = [
+            'INFO:root:Uploading asset/custom.css file to theme id #6 failed.'
+        ]
+        self.assertEqual(log.output, expected_logging)
 
         # check if call request complated
         mock_request.return_value.ok = True
@@ -167,16 +180,17 @@ class TestGateway(unittest.TestCase):
     def test_delete_template(self, mock_request):
         mock_request.return_value.headers = {'content-type': 'application/json'}
         # check if call request failed
-        with self.assertRaises(HTTPError) as error:
+        with self.assertLogs(level='INFO') as log:
             mock_request.return_value.ok = False
             mock_request.return_value.json.return_value = {
                 'name': ['This field is required.', 'Please enter filenames.']
             }
             self.gateway.delete_template(theme_id=6, template_name='asset/custom.css')
-        self.assertEqual(
-            str(error.exception),
-            'Deleting asset/custom.css file from theme id #6 failed.'
-            ' -> "name" : This field is required. Please enter filenames.')
+
+        expected_logging = [
+            'INFO:root:Deleting asset/custom.css file from theme id #6 failed. -> "name" : This field is required. Please enter filenames.'
+        ]
+        self.assertEqual(log.output, expected_logging)
 
         # check if call request complated
         mock_request.return_value.ok = True

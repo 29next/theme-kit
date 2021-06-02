@@ -1,6 +1,5 @@
 import functools
 import logging
-from requests.exceptions import HTTPError
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s',
@@ -50,8 +49,12 @@ def check_error(error_format='{error_default} -> {error_msg}', response_json=Tru
                         error_msg += f'"{key}" : {" ".join(value)}'
                     else:
                         error_msg += value
-            raise HTTPError(error_format.format(
-                **vars(self), **func_kwargs, error_default=error_default, error_msg=error_msg))
+
+            error_log = error_format.format(**vars(self), **func_kwargs, error_default=error_default, error_msg=error_msg)
+
+            logging.info(f'{error_log}')
+
+            return response
 
         return _wrapper
 

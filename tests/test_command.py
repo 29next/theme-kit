@@ -13,6 +13,7 @@ class TestCommand(unittest.TestCase):
     @patch('ntk.command.Gateway', autospec=True)
     def setUp(self, mock_gateway, mock_load_yaml, mock_patch_exists):
         mock_patch_exists.return_value = True
+        
         mock_load_yaml.return_value = {
             'sandbox': {
                 'apikey': 'abc123f0122395acd',
@@ -305,7 +306,12 @@ class TestCommand(unittest.TestCase):
     #####
     # watch (_handle_files_change)
     #####
-    def test_watch_command_should_call_gateway_with_correct_arguments_belong_to_files_change(self):
+    @patch("ntk.command.Command.get_accept_file", autospec=True)
+    def test_watch_command_should_call_gateway_with_correct_arguments_belong_to_files_change(self, mock_get_accept_file):
+        mock_get_accept_file.return_value = [
+            'assets/base.html',
+        ]
+
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
             'content-type': 'application/json'}
@@ -323,6 +329,7 @@ class TestCommand(unittest.TestCase):
             self.command._handle_files_change(changes)
             content = '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
 
+            print('self.mock_gateway.mock_calls)', self.mock_gateway.mock_calls)
             # Change.added
             expected_call_added = call().create_or_update_template(
                 theme_id=1234, template_name='assets/base.html', content=content, files={})

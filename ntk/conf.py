@@ -8,6 +8,34 @@ CONFIG_FILE = os.path.join(os.getcwd(), CONFIG_FILE_NAME)
 
 CONTENT_FILE_EXTENSIONS = ['.html', '.json', '.css', '.js']
 MEDIA_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.woff', '.woff2', '.ico']
+GLOB_PATTERN = [
+    "assets/*.woff2",
+    "assets/*.gif",
+    "assets/*.ico",
+    "assets/*.html",
+    "assets/*.json",
+    "assets/*.png",
+    "assets/*.jpg",
+    "assets/*.jpeg",
+    "assets/*.svg",
+    "assets/*.css",
+    "assets/*.scss",
+    "assets/*.eot",
+    "assets/*.tff",
+    "assets/*.woff",
+    "assets/*.js",
+    "assets/*.webp",
+    "assets/*.mp4",
+    "assets/*.webm",
+    "assets/*.mp3",
+    "assets/*.pdf",
+    "checkout/*.html",
+    "config/*.json",
+    "layout/*.html",
+    "partials/*.html",
+    "templates/*.html",
+    "locales/*.json",
+]
 
 
 class Config(object):
