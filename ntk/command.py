@@ -39,7 +39,6 @@ class Command:
 
         return template_names
 
-
     def _handle_files_change(self, changes):
         for event_type, pathfile in changes:
             template_name = get_template_name(pathfile)
