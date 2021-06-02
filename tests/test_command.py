@@ -306,60 +306,56 @@ class TestCommand(unittest.TestCase):
     #####
     # watch (_handle_files_change)
     #####
-    @patch("ntk.command.Command.get_accept_file", autospec=True)
+    @patch("ntk.command.Command.get_accept_files", autospec=True)
     def test_watch_command_should_call_gateway_with_correct_arguments_belong_to_files_change(self, mock_get_accept_file):
         mock_get_accept_file.return_value = [
-            'assets/base.html',
+            f'{os.getcwd()}/assets/base.html',
+            f'{os.getcwd()}/layout/base.html'
         ]
-
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
             'content-type': 'application/json'}
         self.mock_gateway.return_value.delete_template.return_value.ok = True
         self.mock_gateway.return_value.delete_template.return_value.headers = {'content-type': 'application/json'}
         self.command.config.parser_config(self.parser)
-
         changes = {
             (Change.added, './assets/base.html'),
             (Change.modified, './layout/base.html'),
             (Change.deleted, './layout/base.html'),
         }
-
         with patch("builtins.open", self.mock_file):
             self.command._handle_files_change(changes)
             content = '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
-
-            print('self.mock_gateway.mock_calls)', self.mock_gateway.mock_calls)
             # Change.added
             expected_call_added = call().create_or_update_template(
                 theme_id=1234, template_name='assets/base.html', content=content, files={})
             self.assertIn(expected_call_added, self.mock_gateway.mock_calls)
-
             # Change.modified
             expected_call_modified = call().create_or_update_template(
                 theme_id=1234, template_name='layout/base.html', content=content, files={})
             self.assertIn(expected_call_modified, self.mock_gateway.mock_calls)
-
             # Change.deleted
             expected_call_deleted = call().delete_template(
                 theme_id=1234, template_name='layout/base.html')
             self.assertIn(expected_call_deleted, self.mock_gateway.mock_calls)
 
+    @patch("ntk.command.Command.get_accept_files", autospec=True)
     @patch("builtins.open", autospec=True)
-    def test_watch_command_with_create_image_file_should_call_gateway_with_correct_arguments(self, mock_open_file):
+    def test_watch_command_with_create_image_file_should_call_gateway_with_correct_arguments(
+        self, mock_open_file, mock_get_accept_file
+    ):
+        mock_get_accept_file.return_value = [
+            f'{os.getcwd()}/assets/image.jpg',
+        ]
         mock_open_file.return_value = mock_img_file = MagicMock()
         self.command.config.parser_config(self.parser)
-
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
             'content-type': 'application/json'}
-
         changes = [
             (Change.added, './assets/image.jpg'),
         ]
-
         self.command._handle_files_change(changes)
-
         # Change.added image
         expected_call_added = call().create_or_update_template(
             theme_id=1234,

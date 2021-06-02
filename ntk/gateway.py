@@ -50,7 +50,6 @@ class Gateway:
             name=template_name,
             content=content
         )
-        print('payload', payload)
 
         return self._request("POST", url, apikey=self.apikey, payload=payload, files=files)
 

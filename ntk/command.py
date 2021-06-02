@@ -26,10 +26,7 @@ class Command:
         self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
 
     def _handle_files_change(self, changes):
-        print('changes', changes)
-        print('gateway', self.gateway)
         for event_type, pathfile in changes:
-            print('pathfile', pathfile)
             template_name = get_template_name(pathfile)
             if event_type in [Change.added, Change.modified]:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
@@ -39,10 +36,7 @@ class Command:
                 self._delete_templates([template_name])
 
     def _push_templates(self, template_names):
-        template_names = self.get_accept_file(template_names)
-
-        print('template_names', template_names)
-
+        template_names = self.get_accept_files(template_names)
         template_count = len(template_names)
 
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
@@ -50,21 +44,17 @@ class Command:
 
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
-            template_name = get_template_name(template_name)
-            current_pathfile = os.path.join(os.getcwd(), template_name)
-
+            relative_pathfile = get_template_name(template_name)
             files = {}
             content = ''
-
-            if current_pathfile.endswith(tuple(MEDIA_FILE_EXTENSIONS)):
-                files = {'file': (template_name, open(current_pathfile, 'rb'))}
+            if relative_pathfile.endswith(tuple(MEDIA_FILE_EXTENSIONS)):
+                files = {'file': (relative_pathfile, open(relative_pathfile, 'rb'))}
             else:
-                with open(current_pathfile, "r", encoding="utf-8") as f:
+                with open(relative_pathfile, "r", encoding="utf-8") as f:
                     content = f.read()
                     f.close()
-
             self.gateway.create_or_update_template(
-                theme_id=self.config.theme_id, template_name=template_name, content=content, files=files)
+                theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
 
     def _pull_templates(self, template_names):
         templates = []
@@ -171,7 +161,7 @@ class Command:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
 
-    def get_accept_file(self, template_names):
+    def get_accept_files(self, template_names):
         files = []
         glob_list = map(lambda x : os.path.abspath(x), GLOB_PATTERN)
         for pattern in glob_list:
