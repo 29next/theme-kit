@@ -1,4 +1,5 @@
 import asyncio
+import glob
 import logging
 import os
 import time
@@ -6,7 +7,7 @@ import time
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from ntk.conf import Config, MEDIA_FILE_EXTENSIONS
+from ntk.conf import Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN
 from ntk.decorator import parser_config
 from ntk.gateway import Gateway
 from ntk.utils import get_template_name, progress_bar
@@ -24,47 +25,52 @@ class Command:
         self.config = Config()
         self.gateway = Gateway(store=self.config.store, apikey=self.config.apikey)
 
+    def _get_accept_files(self, template_names):
+        files = []
+        glob_list = map(lambda x: os.path.abspath(x), GLOB_PATTERN)
+        for pattern in glob_list:
+            files.extend(glob.glob(pattern))
+
+        if template_names:
+            filenames = list(map(lambda x: os.path.abspath(x), template_names))
+            template_names = list(filter(lambda x: x in files, filenames))
+        else:
+            template_names = files
+
+        return template_names
+
     def _handle_files_change(self, changes):
         for event_type, pathfile in changes:
             template_name = get_template_name(pathfile)
-            current_pathfile = os.path.join(os.getcwd(), template_name)
-
-            if current_pathfile.endswith(('.py', '.yml', '.conf')):
-                continue
-
             if event_type in [Change.added, Change.modified]:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
-                self._push_themplates([template_name])
+                self._push_templates([template_name])
             elif event_type == Change.deleted:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
                 self._delete_templates([template_name])
 
-    def _push_themplates(self, template_names):
+    def _push_templates(self, template_names):
+        template_names = self._get_accept_files(template_names)
         template_count = len(template_names)
+
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
 
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
-            template_name = get_template_name(template_name)
-            current_pathfile = os.path.join(os.getcwd(), template_name)
-
+            relative_pathfile = get_template_name(template_name)
             files = {}
             content = ''
-            if current_pathfile.endswith(('.py', '.yml', '.conf')):
-                continue
-
-            if current_pathfile.endswith(tuple(MEDIA_FILE_EXTENSIONS)):
-                files = {'file': (template_name, open(current_pathfile, 'rb'))}
+            if relative_pathfile.endswith(tuple(MEDIA_FILE_EXTENSIONS)):
+                files = {'file': (relative_pathfile, open(relative_pathfile, 'rb'))}
             else:
-                with open(current_pathfile, 'r') as f:
+                with open(relative_pathfile, "r", encoding="utf-8") as f:
                     content = f.read()
                     f.close()
-
             self.gateway.create_or_update_template(
-                theme_id=self.config.theme_id, template_name=template_name, content=content, files=files)
+                theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
 
-    def _pull_themplates(self, template_names):
+    def _pull_templates(self, template_names):
         templates = []
         if template_names:
             for filename in template_names:
@@ -85,7 +91,7 @@ class Command:
         current_files = []
         for template in progress_bar(templates, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = str(template['name'])
-            current_pathfile = os.path.join(os.getcwd(), template_name)
+            current_pathfile = os.path.abspath(template_name)
             current_files.append(current_pathfile.replace('\\', '/'))
 
             # create directories
@@ -143,25 +149,20 @@ class Command:
 
     @parser_config()
     def pull(self, parser):
-        self._pull_themplates(parser.filenames)
+        self._pull_templates(parser.filenames)
 
     @parser_config(write_file=True)
     def checkout(self, parser):
-        self._pull_themplates([])
+        self._pull_templates([])
 
     @parser_config()
     def push(self, parser):
-        template_names = []
-        if parser.filenames:
-            template_names += parser.filenames
-        else:
-            for (dirpath, dirnames, filenames) in os.walk(os.getcwd()):
-                template_names += [os.path.relpath(os.path.join(dirpath, file)) for file in filenames]
-        self._push_themplates(template_names)
+        self._push_templates(parser.filenames or [])
 
     @parser_config()
     def watch(self, parser):
-        current_pathfile = os.path.join(os.getcwd())
+        current_pathfile = os.path.abspath(".")
+
         logging.info(f'[{self.config.env}] Current store {self.config.store}')
         logging.info(f'[{self.config.env}] Current theme id {self.config.theme_id}')
         logging.info(f'[{self.config.env}] Preview theme URL {self.config.store}?preview_theme={self.config.theme_id}')

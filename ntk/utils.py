@@ -6,7 +6,7 @@ def get_template_name(pathfile):
     # change linux path ./partials/alert_messages.html -> partials/alert_messages.html
     # change window path .\partials\alert_messages.html -> partials/alert_messages.html
     pathfile = pathfile.replace('\\', '/').replace('./', '')
-    return os.path.relpath(os.path.join(os.getcwd(), pathfile))
+    return os.path.relpath(pathfile)
 
 
 def progress_bar(iterable, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
