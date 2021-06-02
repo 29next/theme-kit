@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import call, MagicMock, patch
 
-from requests.models import HTTPError
-
 from ntk.gateway import Gateway
 
 
@@ -188,7 +186,8 @@ class TestGateway(unittest.TestCase):
             self.gateway.delete_template(theme_id=6, template_name='asset/custom.css')
 
         expected_logging = [
-            'INFO:root:Deleting asset/custom.css file from theme id #6 failed. -> "name" : This field is required. Please enter filenames.'
+            'INFO:root:Deleting asset/custom.css file from theme id #6 failed. -> "name" : '
+            'This field is required. Please enter filenames.'
         ]
         self.assertEqual(log.output, expected_logging)
 

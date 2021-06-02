@@ -107,7 +107,7 @@ class Command:
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = get_template_name(template_name)
             self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
-            
+
     @parser_config(theme_id_required=False)
     def init(self, parser):
         if parser.name:
@@ -163,13 +163,13 @@ class Command:
 
     def get_accept_files(self, template_names):
         files = []
-        glob_list = map(lambda x : os.path.abspath(x), GLOB_PATTERN)
+        glob_list = map(lambda x: os.path.abspath(x), GLOB_PATTERN)
         for pattern in glob_list:
             files.extend(glob.glob(pattern))
 
         if template_names:
-            filenames = list(map(lambda x : os.path.abspath(x), template_names))
-            template_names = list(filter(lambda x : x in files, filenames))
+            filenames = list(map(lambda x: os.path.abspath(x), template_names))
+            template_names = list(filter(lambda x: x in files, filenames))
         else:
             template_names = files
 

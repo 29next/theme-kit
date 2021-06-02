@@ -50,7 +50,9 @@ def check_error(error_format='{error_default} -> {error_msg}', response_json=Tru
                     else:
                         error_msg += value
 
-            error_log = error_format.format(**vars(self), **func_kwargs, error_default=error_default, error_msg=error_msg)
+            error_log = error_format.format(
+                **vars(self), **func_kwargs, error_default=error_default, error_msg=error_msg
+            )
 
             logging.info(f'{error_log}')
 

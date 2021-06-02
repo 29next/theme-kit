@@ -1,5 +1,4 @@
 import requests
-from requests.models import HTTPError
 
 from ntk.decorator import check_error
 
