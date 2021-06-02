@@ -92,7 +92,7 @@ class Command:
         current_files = []
         for template in progress_bar(templates, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = str(template['name'])
-            current_pathfile = os.path.join(os.getcwd(), template_name)
+            current_pathfile = os.path.abspath(template_name)
             current_files.append(current_pathfile.replace('\\', '/'))
 
             # create directories
@@ -162,7 +162,8 @@ class Command:
 
     @parser_config()
     def watch(self, parser):
-        current_pathfile = os.path.join(os.getcwd())
+        current_pathfile = os.path.abspath(".")
+
         logging.info(f'[{self.config.env}] Current store {self.config.store}')
         logging.info(f'[{self.config.env}] Current theme id {self.config.theme_id}')
         logging.info(f'[{self.config.env}] Preview theme URL {self.config.store}?preview_theme={self.config.theme_id}')

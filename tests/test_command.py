@@ -202,12 +202,12 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(self.mock_gateway.mock_calls, expected_gateway_calls)
 
         # create assets/image.png
-        self.assertIn(call(os.path.join(os.getcwd(), 'assets/image.png'), 'wb'), mock_open_file.mock_calls)
+        self.assertIn(call(os.path.abspath('assets/image.png'), 'wb'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(b'\xc2\x89'), mock_open_file.mock_calls)
 
         # create layout/base.html
         self.assertIn(
-            call(os.path.join(os.getcwd(), 'layout/base.html'), 'w', encoding='utf-8'), mock_open_file.mock_calls)
+            call(os.path.abspath('layout/base.html'), 'w', encoding='utf-8'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(
             '{% load i18n %}\n\n<div class="mt-2">My home page</div>'), mock_open_file.mock_calls)
 
@@ -260,12 +260,12 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(self.mock_gateway.mock_calls, expected_gateway_calls)
 
         # create assets/image.png
-        self.assertIn(call(os.path.join(os.getcwd(), 'assets/image.png'), 'wb'), mock_open_file.mock_calls)
+        self.assertIn(call(os.path.abspath('assets/image.png'), 'wb'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(b'\xc2\x89'), mock_open_file.mock_calls)
 
         # create layout/base.html
         self.assertIn(
-            call(os.path.join(os.getcwd(), 'layout/base.html'), 'w', encoding='utf-8'), mock_open_file.mock_calls)
+            call(os.path.abspath('layout/base.html'), 'w', encoding='utf-8'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(
             '{% load i18n %}\n\n<div class="mt-2">My home page</div>'), mock_open_file.mock_calls)
         mock_write_config.assert_not_called()
@@ -298,7 +298,7 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(self.mock_gateway.mock_calls, expected_gateway_calls)
 
         # create assets/image.png
-        self.assertIn(call(os.path.join(os.getcwd(), 'assets/image.png'), 'wb'), mock_open_file.mock_calls)
+        self.assertIn(call(os.path.abspath('assets/image.png'), 'wb'), mock_open_file.mock_calls)
         self.assertIn(call().__enter__().write(b'\xc2\x89'), mock_open_file.mock_calls)
 
         mock_write_config.assert_not_called()
