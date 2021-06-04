@@ -40,7 +40,7 @@ With the package installed, you can now use the commands inside your theme direc
 * `ntk push` - push current theme state to store
 * `ntk watch` - watch for local changes and automatically push changes to store
 
-> **Important** - You must pass the `apikey` and `store` parameters for all commands if there is not an existing `config.yml` file in your current directory.
+**Important** - You must pass the `apikey` and `store` parameters for all commands **if** there is not an existing `config.yml` file in your current directory.
 
 #### Init
 Initialize a new theme which will create the theme on a store and create an initial config.yml file
@@ -71,7 +71,7 @@ ntk list --apikey="<api key>" --store="<https://storedomain.com>"
 #### Checkout
 Checkout a theme from your store to pull it into your directory.
 ```
-ntk checkout --apikey="<api key>" --store="<https://storedomain.com>"
+ntk checkout --theme_id=<id> --apikey="<api key>" --store="<https://storedomain.com>"
 ```
 ##### Required flags without config.yml
 | Short | Long | Description|
@@ -83,7 +83,7 @@ ntk checkout --apikey="<api key>" --store="<https://storedomain.com>"
 #### Pull
 Pull a theme from your store to into your directory.
 ```
-ntk pull --apikey="<api key>" --store="<https://storedomain.com>"
+ntk pull --theme_id=<id> --apikey="<api key>" --store="<https://storedomain.com>"
 ```
 ##### Required flags without config.yml
 | Short | Long | Description|
@@ -96,7 +96,7 @@ ntk pull --apikey="<api key>" --store="<https://storedomain.com>"
 #### Push
 Push all theme files from your local directory to the store.
 ```
-ntk push --apikey="<api key>" --store="<https://storedomain.com>"
+ntk push --theme_id=<id> --apikey="<api key>" --store="<https://storedomain.com>"
 ```
 ##### Required flags without config.yml
 | Short | Long | Description|
@@ -109,7 +109,7 @@ ntk push --apikey="<api key>" --store="<https://storedomain.com>"
 #### Watch
 Watch for file changes and additions in your local directory and automatically push them to the store.
 ```
-ntk watch --apikey="<api key>" --store="<https://storedomain.com>"
+ntk watch --theme_id=<id> --apikey="<api key>" --store="<https://storedomain.com>"
 ```
 ##### Required flags without config.yml
 | Short | Long | Description|
