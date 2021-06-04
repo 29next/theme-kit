@@ -42,11 +42,14 @@ GLOB_PATTERN = [
     "locales/**/*.json",
 ]
 
+SASS_DESTINATION = 'assets'
+
 
 class Config(object):
     apikey = None
     store = None
     theme_id = None
+    sass_source = None
 
     env = 'development'
 
@@ -94,11 +97,12 @@ class Config(object):
             with open(CONFIG_FILE, "r") as yamlfile:
                 configs = yaml.load(yamlfile, Loader=yaml.FullLoader)
                 yamlfile.close()
-
             if configs and configs.get(self.env) and update:
                 self.apikey = configs[self.env].get('apikey')
                 self.store = configs[self.env].get('store')
                 self.theme_id = configs[self.env].get('theme_id')
+                self.sass_source = configs[self.env].get('sass_source')
+
         return configs
 
     def write_config(self):

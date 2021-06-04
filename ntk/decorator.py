@@ -43,6 +43,7 @@ def check_error(error_format='{error_default} -> {error_msg}', response_json=Tru
                 return response
             elif response.headers.get('content-type') == 'application/json':
                 result = response.json()
+                print(8, response.json())
                 error_msg = " -> "
                 for key, value in result.items():
                     if type(value) == list:
