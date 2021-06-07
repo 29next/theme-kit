@@ -8,7 +8,9 @@ import sass
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from ntk.conf import Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE
+from ntk.conf import (
+    Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE, SASS_DESTINATION_GLOB_PATTERN
+)
 from ntk.decorator import parser_config
 from ntk.gateway import Gateway
 from ntk.utils import get_template_name, progress_bar
@@ -135,7 +137,7 @@ class Command:
         logging.info(f'[{self.config.env}] Compile sass at directory: {SASS_SOURCE} to {SASS_DESTINATION}')
         try:
             sass.compile(dirname=(SASS_SOURCE, SASS_DESTINATION), output_style=self.config.sass_output_style)
-            for file in glob.glob(f'{SASS_DESTINATION}/**/*.css', recursive=True):
+            for file in glob.glob(SASS_DESTINATION_GLOB_PATTERN, recursive=True):
                 logging.info(f'[{self.config.env}] Updated {file}')
             logging.info(f'[{self.config.env}] Compile sass successfully.')
         except Exception as error:

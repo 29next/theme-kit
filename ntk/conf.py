@@ -14,6 +14,7 @@ MEDIA_FILE_EXTENSIONS = [
 
 SASS_SOURCE = 'sass'
 SASS_DESTINATION = 'assets'
+SASS_DESTINATION_GLOB_PATTERN = f'{SASS_DESTINATION}/**/*.css'
 SASS_OUTPUT_STYLES = ['nested', 'expanded', 'compact', 'compressed']
 
 GLOB_PATTERN = [
