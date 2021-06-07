@@ -38,7 +38,7 @@ available commands:
     pull         Pull a theme from your store to into your directory.
     push         Push all theme files from your local direcotry to the store.
     watch        Watch for file changes and additions in your local directory and automatically push them to the store.
-    compile_sass Compile sass to css.
+    sass         Compile sass to css.
 ''' + option_commands,
             usage=argparse.SUPPRESS,
             epilog='Use "ntk [command] --help" for more information about a command.',
@@ -128,14 +128,14 @@ Usage:
         parser_watch.set_defaults(func=self.command.watch)
         self._add_config_arguments(parser_watch)
 
-        # create the parser for the "compile_sass" command
+        # create the parser for the "sass" command
         parser_watch = subparsers.add_parser(
-            'compile_sass',
+            'sass',
             help='Compile scss to css on your theme',
             usage=argparse.SUPPRESS,
             description='''
 Usage:
-    ntk compile_sass [options]
+    ntk sass [options]
 ''' + option_commands,
             formatter_class=argparse.RawTextHelpFormatter)
         parser_watch.set_defaults(func=self.command.compile_sass)

@@ -390,7 +390,7 @@ class TestCommand(unittest.TestCase):
             mock_compile_sass.assert_called_once()
 
     #####
-    # compile_sass
+    # sass
     #####
     @patch("ntk.command.sass")
     def test_compile_sass_command_error_should_return_log_we_expect(self, mock_sass):
