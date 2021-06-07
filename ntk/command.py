@@ -45,12 +45,12 @@ class Command:
             template_name = get_template_name(pathfile)
             if event_type in [Change.added, Change.modified]:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
-                self._push_templates([template_name], watch_command=True)
+                self._push_templates([template_name], compile_sass=True)
             elif event_type == Change.deleted:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
                 self._delete_templates([template_name])
 
-    def _push_templates(self, template_names, watch_command=False):
+    def _push_templates(self, template_names, compile_sass=False):
         template_names = self._get_accept_files(template_names)
         template_count = len(template_names)
 
@@ -73,7 +73,7 @@ class Command:
                     f.close()
 
             paths = template_name.split('/')
-            if watch_command and paths[0] == SASS_SOURCE:
+            if compile_sass and paths[0] == SASS_SOURCE:
                 self._compile_sass()
 
             self.gateway.create_or_update_template(
