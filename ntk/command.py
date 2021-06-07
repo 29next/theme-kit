@@ -3,11 +3,12 @@ import glob
 import logging
 import os
 import time
+import sass
 
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from ntk.conf import Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN
+from ntk.conf import Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE
 from ntk.decorator import parser_config
 from ntk.gateway import Gateway
 from ntk.utils import get_template_name, progress_bar
@@ -44,20 +45,24 @@ class Command:
             template_name = get_template_name(pathfile)
             if event_type in [Change.added, Change.modified]:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
-                self._push_templates([template_name])
+                self._push_templates([template_name], watch_command=True)
             elif event_type == Change.deleted:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
                 self._delete_templates([template_name])
 
-    def _push_templates(self, template_names):
+    def _push_templates(self, template_names, watch_command=False):
         template_names = self._get_accept_files(template_names)
         template_count = len(template_names)
 
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
+
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
+
             relative_pathfile = get_template_name(template_name)
+            template_name = get_template_name(template_name)
+
             files = {}
             content = ''
             if relative_pathfile.endswith(tuple(MEDIA_FILE_EXTENSIONS)):
@@ -66,6 +71,11 @@ class Command:
                 with open(relative_pathfile, "r", encoding="utf-8") as f:
                     content = f.read()
                     f.close()
+
+            paths = template_name.split('/')
+            if watch_command and paths[0] == SASS_SOURCE:
+                self._compile_sass()
+
             self.gateway.create_or_update_template(
                 theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
 
@@ -121,6 +131,16 @@ class Command:
             template_name = get_template_name(template_name)
             self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
 
+    def _compile_sass(self):
+        logging.info(f'[{self.config.env}] Compile sass at directory: {SASS_SOURCE} to {SASS_DESTINATION}')
+        try:
+            sass.compile(dirname=(SASS_SOURCE, SASS_DESTINATION), output_style=self.config.sass_output_style)
+            for file in glob.glob(f'{SASS_DESTINATION}/**/*.css', recursive=True):
+                logging.info(f'[{self.config.env}] Updated {file}')
+            logging.info(f'[{self.config.env}] Compile sass successfully.')
+        except Exception as error:
+            logging.error(f'[{self.config.env}] Compile sass failed with {error}')
+
     @parser_config(theme_id_required=False)
     def init(self, parser):
         if parser.name:
@@ -174,3 +194,8 @@ class Command:
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
+
+    @parser_config(write_file=True)
+    def compile_sass(self, parser):
+        logging.info(f'[{self.config.env}] Sass output style {self.config.sass_output_style}')
+        self._compile_sass()
