@@ -23,7 +23,7 @@ options:
     -s, --store                  Full domain of the store.
     -t, --theme_id               ID of the theme.
     -e, --env                    Environment to run the command(default [development])
-    -sos, -sass_output_style     Sass output style default 'nested' (option 'expanded', 'compact', 'compressed')'''
+    -sos, --sass_output_style     Sass output style default 'nested' (option 'expanded', 'compact', 'compressed')'''
 
         # create the top-level parser
         parser = argparse.ArgumentParser(
