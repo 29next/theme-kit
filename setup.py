@@ -22,7 +22,8 @@ setup(
     install_requires=[
         "PyYAML>=5.4",
         "requests>=2.25",
-        "watchgod>=0.7"
+        "watchgod>=0.7",
+        "libsass>=0.21.0"
     ],
     entry_points={
         'console_scripts': [
