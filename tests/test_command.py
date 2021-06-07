@@ -4,6 +4,7 @@ from unittest.mock import call, MagicMock, mock_open, patch
 
 from watchgod.watcher import Change
 
+from ntk import conf
 from ntk.command import Command
 
 
@@ -26,7 +27,8 @@ class TestCommand(unittest.TestCase):
             'env': 'development',
             'apikey': 'abcd1234',
             'theme_id': 1234,
-            'store': 'http://development.com'
+            'store': 'http://development.com',
+            'sass_output_style': 'nested'
         }
         with patch('builtins.open', mock_open(read_data='yaml data')):
             self.parser = MagicMock(**config)
@@ -366,3 +368,34 @@ class TestCommand(unittest.TestCase):
             files={'file': ('assets/image.jpg', mock_img_file)}
         )
         self.assertIn(expected_call_added, self.mock_gateway.mock_calls)
+
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
+    @patch("ntk.command.Command._compile_sass", autospec=True)
+    def test_watch_command_with_sass_directory_should_call_compile_sass(
+        self, mock_get_accept_file, mock_compile_sass
+    ):
+        mock_get_accept_file.return_value = [
+            'sass/theme.scss',
+        ]
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json'}
+
+        changes = {
+            (Change.modified, 'sass/theme.scss'),
+        }
+
+        with patch("builtins.open", self.mock_file):
+            self.command._handle_files_change(changes)
+            mock_compile_sass.assert_called_once()
+
+    #####
+    # compile_sass
+    #####
+    @patch("ntk.command.sass")
+    def test_compile_sass_command_error_should_return_log_we_expect(self, mock_sass):
+        self.command.config.parser_config(self.parser)
+        self.command._compile_sass()
+
+        mock_sass.compile.assert_called_once_with(
+            dirname=(conf.SASS_SOURCE, conf.SASS_DESTINATION), output_style='nested')
