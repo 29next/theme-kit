@@ -133,7 +133,7 @@ ntk sass
 
 
 ## Sass Processing
-Sass preprocessing via [Python Libsass](https://sass.github.io/libsass-python/) for your Sass files. Includes support for variables, imports, nesting, mixins, inheritance, custom functions, and more.
+Theme kit includes support for Sass processing via [Python Libsass](https://sass.github.io/libsass-python/). Sass processing includes support for variables, imports, nesting, mixins, inheritance, custom functions, and more.
 
 **How it works**
 1. Put `scss` files in top level `sass` directory.
@@ -150,7 +150,7 @@ Sass preprocessing via [Python Libsass](https://sass.github.io/libsass-python/) 
 │   └── styles.scss // processed to assets/main.css
 ```
 
-**Important** - Sass processing is only supported on local, files in the `sass` directory are uploaded to your store for storage but cannot be edited in the store theme editor,
+**Important** - Sass processing is only supported on local, files in the `sass` directory are uploaded to your store for storage but cannot be edited in the store theme editor.
 
 **Configure Default Output Style**
 
