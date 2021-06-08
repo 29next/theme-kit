@@ -22,7 +22,7 @@ options:
     -s, --store                  Full domain of the store
     -t, --theme_id               ID of the theme
     -e, --env                    Environment to run the command (default [development])
-    -sos, --sass_output_style    Specify Sass output style: default 'nested' (option 'expanded', 'compact', 'compressed')'''
+    -sos, --sass_output_style    Specify Sass output style: nested, expanded, compact, or compressed'''
 
         # create the top-level parser
         parser = argparse.ArgumentParser(
@@ -31,12 +31,12 @@ Usage:
     ntk [command] [options]
 
 available commands:
-    init         Initialize a new theme, will create the theme on the store and create an initial config.yml file
+    init         Initialize a new theme, will create the theme on the store and config.yml file
     list         List all available themes on the store
     checkout     Pull theme from the store into your current directory and create config.yml
     pull         Pull theme from the store into your current directory
     push         Push all theme files from your current direcotry to the store
-    watch        Watch for changes in your current directory and automatically push updates to the store
+    watch        Watch for changes in your current directory and push updates to the store
     sass         Process Sass files to CSS files in assets directory
 ''' + option_commands,
             usage=argparse.SUPPRESS,
