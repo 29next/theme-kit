@@ -4,9 +4,9 @@
 
 # 29 Next Theme Kit
 
-Theme Kit is a cross-platform command line tool to build and maintain storefront themes on the 29 Next platform.
+Theme Kit is a cross-platform command line tool to build and maintain storefront themes with [Sass Processing](#Sass%20Processing) support on the 29 Next platform.
 
-### Installation
+## Installation
 
 Theme Kit is a python package available on [PyPi](https://pypi.org/project/next-theme-kit/)
 
@@ -29,7 +29,7 @@ Update to the latest version of Theme Kit with the following command:
 pip install next-theme-kit --upgrade
 ```
 
-### Usage
+## Usage
 With the package installed, you can now use the commands inside your theme directory and work on a storefront theme.
 
 **Available Commands**
@@ -39,6 +39,7 @@ With the package installed, you can now use the commands inside your theme direc
 * `ntk pull` - download existing theme or theme file
 * `ntk push` - push current theme state to store
 * `ntk watch` - watch for local changes and automatically push changes to store
+* `ntk sass` - process sass to css, see [Sass Processing](#Sass%20Processing)
 
 **Important** - You must pass the `apikey` and `store` parameters for all commands **if** there is not an existing `config.yml` file in your current directory.
 
@@ -117,6 +118,52 @@ ntk watch --theme_id=<id> --apikey="<api key>" --store="<https://storedomain.com
 | -a | --apikey | API Key used to connect to the store.|
 | -s | --store | Full domain of the store. |
 | -t | --theme_id | ID of the theme. |
+
+#### Sass
+Process `sass` files to CSS files for inclusion in your storefront. See [Sass Processing](#Sass%20Processing) for more details.
+
+```
+ntk sass
+```
+##### Optional flags
+| Short | Long | Description|
+|--- | --- | --- |
+| -sos | --sass_output_style |  Options are nested, expanded, compact, or compressed|
+
+
+
+## Sass Processing
+Sass preprocessing via [Python Libsass](https://sass.github.io/libsass-python/) for your Sass files. Includes support for variables, imports, nesting, mixins, inheritance, custom functions, and more.
+
+**How it works**
+1. `scss` files must be in a top level `sass` directory.
+2. Run `ntk sass` or `ntk watch` to process theme `sass` files.
+3. Top level `scss` files will be processed to `css` files in the asset directory with the same name.
+
+**Example Theme with Sass Structure**
+```
+├── assets
+│   ├── styles.css // reference this asset file in templates
+├── sass
+│   ├── _base.scss
+│   ├── _variables.scss
+│   └── styles.scss // processesed to assets/main.css
+```
+
+**Important** - Sass processing is only supported on local, files in the `sass` directory are uploaded to your store for storage but cannot be edited in the store theme editor,
+
+**Configure Default Output Style**
+
+Change the default sass output style in `config.yml`, example below.
+
+```
+development:
+  apikey: <api key>
+  sass:
+    output_style: compressed // change output_style
+  store: <store url>
+  theme_id: <theme id>
+```
 
 
 <!-- Badges -->
