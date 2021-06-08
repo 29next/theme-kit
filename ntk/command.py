@@ -134,12 +134,13 @@ class Command:
             self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
 
     def _compile_sass(self):
-        logging.info(f'[{self.config.env}] Compile sass at directory: {SASS_SOURCE} to {SASS_DESTINATION}')
+        logging.info(f'[{self.config.env}] Processing {SASS_SOURCE} to {SASS_DESTINATION}.')
         try:
             sass.compile(dirname=(SASS_SOURCE, SASS_DESTINATION), output_style=self.config.sass_output_style)
-            logging.info(f'[{self.config.env}] Compile sass successfully.')
+            logging.info(f'[{self.config.env}] Sass successfully processed.')
         except Exception as error:
-            logging.error(f'[{self.config.env}] Compile sass failed with {error}')
+            logging.error(f'[{self.config.env}] Sass processing failed, see error below.')
+            logging.error(f'[{self.config.env}] {error}')
 
     @parser_config(theme_id_required=False)
     def init(self, parser):
