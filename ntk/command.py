@@ -59,6 +59,10 @@ class Command:
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
 
+        for template_name in template_names:
+            if compile_sass and get_template_name(template_name).split('/')[0] == SASS_SOURCE:
+                self._compile_sass()
+
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
 
@@ -73,10 +77,6 @@ class Command:
                 with open(relative_pathfile, "r", encoding="utf-8") as f:
                     content = f.read()
                     f.close()
-
-            paths = template_name.split('/')
-            if compile_sass and paths[0] == SASS_SOURCE:
-                self._compile_sass()
 
             self.gateway.create_or_update_template(
                 theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
