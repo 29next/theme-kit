@@ -136,7 +136,7 @@ ntk sass
 Sass preprocessing via [Python Libsass](https://sass.github.io/libsass-python/) for your Sass files. Includes support for variables, imports, nesting, mixins, inheritance, custom functions, and more.
 
 **How it works**
-1. `scss` files must be in a top level `sass` directory.
+1. Put `scss` files in top level `sass` directory.
 2. Run `ntk sass` or `ntk watch` to process theme `sass` files.
 3. Top level `scss` files will be processed to `css` files in the asset directory with the same name.
 
