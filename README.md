@@ -4,7 +4,7 @@
 
 # 29 Next Theme Kit
 
-Theme Kit is a cross-platform command line tool to build and maintain storefront themes with [Sass Processing](#Sass%20Processing) support on the 29 Next platform.
+Theme Kit is a cross-platform command line tool to build and maintain storefront themes with [Sass Processing](#sass-processing) support on the 29 Next platform.
 
 ## Installation
 
@@ -39,7 +39,7 @@ With the package installed, you can now use the commands inside your theme direc
 * `ntk pull` - download existing theme or theme file
 * `ntk push` - push current theme state to store
 * `ntk watch` - watch for local changes and automatically push changes to store
-* `ntk sass` - process sass to css, see [Sass Processing](#Sass%20Processing)
+* `ntk sass` - process sass to css, see [Sass Processing](#sass-processing)
 
 **Important** - You must pass the `apikey` and `store` parameters for all commands **if** there is not an existing `config.yml` file in your current directory.
 
@@ -120,7 +120,7 @@ ntk watch --theme_id=<id> --apikey="<api key>" --store="<https://storedomain.com
 | -t | --theme_id | ID of the theme. |
 
 #### Sass
-Process `sass` files to CSS files for inclusion in your storefront. See [Sass Processing](#Sass%20Processing) for more details.
+Process `sass` files to CSS files for inclusion in your storefront. See [Sass Processing](#sass-processing) for more details.
 
 ```
 ntk sass
