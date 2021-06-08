@@ -147,7 +147,7 @@ Sass preprocessing via [Python Libsass](https://sass.github.io/libsass-python/) 
 ├── sass
 │   ├── _base.scss
 │   ├── _variables.scss
-│   └── styles.scss // processesed to assets/main.css
+│   └── styles.scss // processed to assets/main.css
 ```
 
 **Important** - Sass processing is only supported on local, files in the `sass` directory are uploaded to your store for storage but cannot be edited in the store theme editor,
