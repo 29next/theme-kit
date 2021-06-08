@@ -59,8 +59,9 @@ class Command:
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
 
-        if compile_sass and get_template_name(template_names[0]).split('/')[0] == SASS_SOURCE:
-            self._compile_sass()
+        for template_name in template_names:
+            if compile_sass and get_template_name(template_name).split('/')[0] == SASS_SOURCE:
+                self._compile_sass()
 
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
