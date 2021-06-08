@@ -160,7 +160,7 @@ Change the default sass output style in `config.yml`, example below.
 development:
   apikey: <api key>
   sass:
-    output_style: compressed // change output_style
+    output_style: compressed // options: nested, expanded, compact, or compressed
   store: <store url>
   theme_id: <theme id>
 ```
