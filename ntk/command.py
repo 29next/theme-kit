@@ -9,7 +9,7 @@ from watchgod import awatch
 from watchgod.watcher import Change
 
 from ntk.conf import (
-    Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE, SASS_DESTINATION_GLOB_PATTERN
+    Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE
 )
 from ntk.decorator import parser_config
 from ntk.gateway import Gateway
@@ -137,8 +137,6 @@ class Command:
         logging.info(f'[{self.config.env}] Compile sass at directory: {SASS_SOURCE} to {SASS_DESTINATION}')
         try:
             sass.compile(dirname=(SASS_SOURCE, SASS_DESTINATION), output_style=self.config.sass_output_style)
-            for file in glob.glob(SASS_DESTINATION_GLOB_PATTERN, recursive=True):
-                logging.info(f'[{self.config.env}] Updated {file}')
             logging.info(f'[{self.config.env}] Compile sass successfully.')
         except Exception as error:
             logging.error(f'[{self.config.env}] Compile sass failed with {error}')
@@ -197,7 +195,7 @@ class Command:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
 
-    @parser_config(write_file=True)
+    @parser_config()
     def compile_sass(self, parser):
         logging.info(f'[{self.config.env}] Sass output style {self.config.sass_output_style}')
         self._compile_sass()

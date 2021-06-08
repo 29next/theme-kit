@@ -14,7 +14,6 @@ MEDIA_FILE_EXTENSIONS = [
 
 SASS_SOURCE = 'sass'
 SASS_DESTINATION = 'assets'
-SASS_DESTINATION_GLOB_PATTERN = f'{SASS_DESTINATION}/**/*.css'
 SASS_OUTPUT_STYLES = ['nested', 'expanded', 'compact', 'compressed']
 
 GLOB_PATTERN = [
@@ -116,6 +115,8 @@ class Config(object):
                 self.store = configs[self.env].get('store')
                 self.theme_id = configs[self.env].get('theme_id')
 
+                # default sass output style is nested
+                self.sass_output_style = 'nested'
                 if configs[self.env].get('sass'):
                     self.sass_output_style = configs[self.env]['sass'].get('output_style')
 

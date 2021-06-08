@@ -13,8 +13,7 @@ class Parser:
         parser.add_argument('-t', '--theme_id', action="store", type=int, dest="theme_id", help=argparse.SUPPRESS)
         parser.add_argument('-e', '--env', action="store", dest="env", default='development', help=argparse.SUPPRESS)
         parser.add_argument(
-            '-sos', '--sass_output_style', action="store", dest="sass_output_style",
-            default='nested', help=argparse.SUPPRESS)
+            '-sos', '--sass_output_style', action="store", dest="sass_output_style", help=argparse.SUPPRESS)
 
     def create_parser(self):
         option_commands = '''
