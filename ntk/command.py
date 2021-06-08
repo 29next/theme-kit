@@ -198,5 +198,5 @@ class Command:
 
     @parser_config()
     def compile_sass(self, parser):
-        logging.info(f'[{self.config.env}] Sass output style {self.config.sass_output_style}')
+        logging.info(f'[{self.config.env}] Sass output style {self.config.sass_output_style}.')
         self._compile_sass()
