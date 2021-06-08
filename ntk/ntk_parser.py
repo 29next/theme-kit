@@ -18,11 +18,11 @@ class Parser:
     def create_parser(self):
         option_commands = '''
 options:
-    -a, --apikey                 API Key used to connect to the store.
-    -s, --store                  Full domain of the store.
-    -t, --theme_id               ID of the theme.
-    -e, --env                    Environment to run the command(default [development])
-    -sos, --sass_output_style     Sass output style default 'nested' (option 'expanded', 'compact', 'compressed')'''
+    -a, --apikey                 API Key used to connect to the store
+    -s, --store                  Full domain of the store
+    -t, --theme_id               ID of the theme
+    -e, --env                    Environment to run the command (default [development])
+    -sos, --sass_output_style    Specify Sass output style: default 'nested' (option 'expanded', 'compact', 'compressed')'''
 
         # create the top-level parser
         parser = argparse.ArgumentParser(
@@ -31,13 +31,13 @@ Usage:
     ntk [command] [options]
 
 available commands:
-    init         Initialize a new theme which will create the theme on a store and create an initial config.yml file.
-    list         List all themes installed on the theme.
-    checkout     Checkout a theme from your store to pull it into your directory.
-    pull         Pull a theme from your store to into your directory.
-    push         Push all theme files from your local direcotry to the store.
-    watch        Watch for file changes and additions in your local directory and automatically push them to the store.
-    sass         Compile sass to css.
+    init         Initialize a new theme, will create the theme on the store and create an initial config.yml file
+    list         List all available themes on the store
+    checkout     Pull theme from the store into your current directory and create config.yml
+    pull         Pull theme from the store into your current directory
+    push         Push all theme files from your current direcotry to the store
+    watch        Watch for changes in your current directory and automatically push updates to the store
+    sass         Process Sass files to CSS files in assets directory
 ''' + option_commands,
             usage=argparse.SUPPRESS,
             epilog='Use "ntk [command] --help" for more information about a command.',
