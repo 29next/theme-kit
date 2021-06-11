@@ -19,7 +19,7 @@ def main():
     try:
         args.func(args)
     except AttributeError:
-        print('Use ntk -h to see available commands')
+        print('Use ntk -h or --help to see available commands')
     except (TypeError, HTTPError) as e:
         # print new line for support error on process progress bar
         print()

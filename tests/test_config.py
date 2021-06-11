@@ -44,24 +44,34 @@ class TestConfig(unittest.TestCase):
             'sandbox': {
                 'apikey': '2b78f637972b1c9dabcd',
                 'store': 'http://sandbox.com',
-                'theme_id': 5678
+                'theme_id': 5678,
+                'sass': {
+                    'output_style': 'nested'
+                }
             }
         }
 
         self.config.apikey = '2b78f637972b1c9d1234'
         self.config.store = 'http://example.com'
         self.config.theme_id = 1234
+        self.config.sass_output_style = 'nested'
 
         config = {
             'sandbox': {
                 'apikey': '2b78f637972b1c9dabcd',
                 'store': 'http://sandbox.com',
-                'theme_id': 5678
+                'theme_id': 5678,
+                'sass': {
+                    'output_style': 'nested'
+                }
             },
             'development': {
                 'apikey': '2b78f637972b1c9d1234',
                 'store': 'http://example.com',
-                'theme_id': 1234
+                'theme_id': 1234,
+                'sass': {
+                    'output_style': 'nested'
+                }
             }
         }
 
@@ -108,6 +118,19 @@ class TestConfig(unittest.TestCase):
             self.config.validate_config()
         self.assertEqual(str(error.exception), '[development] argument -a/--apikey, -s/--store are required.')
 
+        with self.assertRaises(TypeError) as error:
+            self.config.apikey = '2b78f637972b1c9d1234'
+            self.config.store = 'http://example.com'
+            self.config.sass_output_style = 'abc'
+            self.config.validate_config()
+        self.assertEqual(
+            str(error.exception),
+            (
+                '[development] argument -sos/--sass_output_style is unsupported '
+                'output_style; choose one of nested, expanded, compact, and compressed'
+            )
+        )
+
     def test_save_config_should_validate_and_write_config_correctly(self):
         with patch("ntk.conf.Config.write_config") as mock_write_config:
             with patch("ntk.conf.Config.validate_config") as mock_validate_config:
@@ -126,7 +149,8 @@ class TestConfig(unittest.TestCase):
             'env': 'sandbox',
             'apikey': '2b78f637972b1c9d1234',
             'store': 'http://sandbox.com',
-            'theme_id': 1234
+            'theme_id': 1234,
+            'sass_output_style': 'nested'
         }
         parser = MagicMock(**config)
 
@@ -136,6 +160,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')
         self.assertEqual(self.config.store, 'http://sandbox.com')
         self.assertEqual(self.config.theme_id, 1234)
+        self.assertEqual(self.config.sass_output_style, 'nested')
         mock_write_config.assert_not_called()
 
         with patch("ntk.conf.Config.write_config") as mock_write_config:
@@ -144,4 +169,5 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(self.config.apikey, '2b78f637972b1c9d1234')
         self.assertEqual(self.config.store, 'http://sandbox.com')
         self.assertEqual(self.config.theme_id, 1234)
+        self.assertEqual(self.config.sass_output_style, 'nested')
         mock_write_config.assert_called_once()

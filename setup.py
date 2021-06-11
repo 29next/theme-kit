@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-__version__ = '0.0.8'
+__version__ = '1.0.0'
 
 tests_require = [
     "flake8==3.9.2",
@@ -23,7 +23,7 @@ setup(
         "PyYAML>=5.4",
         "requests>=2.25",
         "watchgod>=0.7",
-        "libsass==0.21.0"
+        "libsass>=0.21.0"
     ],
     entry_points={
         'console_scripts': [

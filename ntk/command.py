@@ -8,7 +8,9 @@ import sass
 from watchgod import awatch
 from watchgod.watcher import Change
 
-from ntk.conf import Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION
+from ntk.conf import (
+    Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE
+)
 from ntk.decorator import parser_config
 from ntk.gateway import Gateway
 from ntk.utils import get_template_name, progress_bar
@@ -45,23 +47,27 @@ class Command:
             template_name = get_template_name(pathfile)
             if event_type in [Change.added, Change.modified]:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
-                self._push_themplates([template_name], watch_command=True)
+                self._push_templates([template_name], compile_sass=True)
             elif event_type == Change.deleted:
                 logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
                 self._delete_templates([template_name])
 
-    def _push_themplates(self, template_names, watch_command=False):
+    def _push_templates(self, template_names, compile_sass=False):
+        template_names = self._get_accept_files(template_names)
         template_count = len(template_names)
 
         logging.info(f'[{self.config.env}] Connecting to {self.config.store}')
         logging.info(f'[{self.config.env}] Uploading {template_count} files to theme id {self.config.theme_id}')
+
+        for template_name in template_names:
+            if compile_sass and get_template_name(template_name).split('/')[0] == SASS_SOURCE:
+                self._compile_sass()
+
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
 
             relative_pathfile = get_template_name(template_name)
             template_name = get_template_name(template_name)
-
-            # current_pathfile = os.path.join(os.getcwd(), template_name)
 
             files = {}
             content = ''
@@ -71,33 +77,6 @@ class Command:
                 with open(relative_pathfile, "r", encoding="utf-8") as f:
                     content = f.read()
                     f.close()
-
-            paths = template_name.split('/')
-            if self.config.sass_source and paths[0] == self.config.sass_source:
-                try:
-                    sass.compile(dirname=(self.config.sass_source, SASS_DESTINATION))
-
-                    import glob
-                    for file_name in glob.iglob('assets/*.css'):
-                        print(file_name)
-                    # with open(self.config.sass_destination, "w", encoding="utf-8") as template_file:
-                    #     template_file.write(content)
-                    #     template_file.close()
-
-                    logging.info(
-                        f'[{self.config.env}] Compile sass at {self.config.sass_source} success ' +
-                        f'and create file at {SASS_DESTINATION}')
-
-                    # watch command is auto push new create file
-                except Exception as error:
-                    # raise error
-                    logging.error(f'[{self.config.env}] Compile sass at {template_name} failed with {error}')
-
-                if watch_command:
-                    return
-                continue
-
-            # [f'{SASS_DESTINATION}/{file}' for file in os.listdir('assets') if os.path.isfile(f'{SASS_DESTINATION}/{file}')]
 
             self.gateway.create_or_update_template(
                 theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
@@ -154,6 +133,15 @@ class Command:
             template_name = get_template_name(template_name)
             self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
 
+    def _compile_sass(self):
+        logging.info(f'[{self.config.env}] Processing {SASS_SOURCE} to {SASS_DESTINATION}.')
+        try:
+            sass.compile(dirname=(SASS_SOURCE, SASS_DESTINATION), output_style=self.config.sass_output_style)
+            logging.info(f'[{self.config.env}] Sass successfully processed.')
+        except Exception as error:
+            logging.error(f'[{self.config.env}] Sass processing failed, see error below.')
+            logging.error(f'[{self.config.env}] {error}')
+
     @parser_config(theme_id_required=False)
     def init(self, parser):
         if parser.name:
@@ -207,3 +195,8 @@ class Command:
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
+
+    @parser_config()
+    def compile_sass(self, parser):
+        logging.info(f'[{self.config.env}] Sass output style {self.config.sass_output_style}.')
+        self._compile_sass()

@@ -12,14 +12,17 @@ class Parser:
         parser.add_argument('-s', '--store', action="store", dest="store", help=argparse.SUPPRESS)
         parser.add_argument('-t', '--theme_id', action="store", type=int, dest="theme_id", help=argparse.SUPPRESS)
         parser.add_argument('-e', '--env', action="store", dest="env", default='development', help=argparse.SUPPRESS)
+        parser.add_argument(
+            '-sos', '--sass_output_style', action="store", dest="sass_output_style", help=argparse.SUPPRESS)
 
     def create_parser(self):
         option_commands = '''
 options:
-    -a, --apikey        API Key used to connect to the store.
-    -s, --store         Full domain of the store.
-    -t, --theme_id      ID of the theme.
-    -e, --env           Environment to run the command(default [development])'''
+    -a, --apikey                 API Key used to connect to the store
+    -s, --store                  Full domain of the store
+    -t, --theme_id               ID of the theme
+    -e, --env                    Environment to run the command (default [development])
+    -sos, --sass_output_style    Specify Sass output style: nested, expanded, compact, or compressed'''
 
         # create the top-level parser
         parser = argparse.ArgumentParser(
@@ -28,12 +31,13 @@ Usage:
     ntk [command] [options]
 
 available commands:
-    init        Initialize a new theme which will create the theme on a store and create an initial config.yml file.
-    list        List all themes installed on the theme.
-    checkout    Checkout a theme from your store to pull it into your directory.
-    pull        Pull a theme from your store to into your directory.
-    push        Push all theme files from your local direcotry to the store.
-    watch       Watch for file changes and additions in your local directory and automatically push them to the store.
+    init         Initialize a new theme, will create the theme on the store and config.yml file
+    list         List all available themes on the store
+    checkout     Pull theme from the store into your current directory and create config.yml
+    pull         Pull theme from the store into your current directory
+    push         Push all theme files from your current direcotry to the store
+    watch        Watch for changes in your current directory and push updates to the store
+    sass         Process Sass files to CSS files in assets directory
 ''' + option_commands,
             usage=argparse.SUPPRESS,
             epilog='Use "ntk [command] --help" for more information about a command.',
@@ -123,4 +127,16 @@ Usage:
         parser_watch.set_defaults(func=self.command.watch)
         self._add_config_arguments(parser_watch)
 
+        # create the parser for the "sass" command
+        parser_watch = subparsers.add_parser(
+            'sass',
+            help='Compile scss to css on your theme',
+            usage=argparse.SUPPRESS,
+            description='''
+Usage:
+    ntk sass [options]
+''' + option_commands,
+            formatter_class=argparse.RawTextHelpFormatter)
+        parser_watch.set_defaults(func=self.command.compile_sass)
+        self._add_config_arguments(parser_watch)
         return parser
