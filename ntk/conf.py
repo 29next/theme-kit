@@ -49,8 +49,6 @@ GLOB_PATTERN = [
     f"{SASS_SOURCE}/**/*.scss",
 ]
 
-SASS_DESTINATION = 'assets'
-
 
 class Config(object):
     apikey = None

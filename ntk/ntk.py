@@ -15,7 +15,6 @@ logging.basicConfig(
 def main():
     parser = Parser().create_parser()
     args = parser.parse_args()
-
     try:
         args.func(args)
     except AttributeError:
