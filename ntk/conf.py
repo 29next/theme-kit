@@ -97,7 +97,7 @@ class Config(object):
             pluralize = 'is' if len(error_msgs) == 1 else 'are'
             raise TypeError(f'[{self.env}] argument {message} {pluralize} required.')
 
-        if self.sass_output_style not in SASS_OUTPUT_STYLES:
+        if self.sass_output_style and self.sass_output_style not in SASS_OUTPUT_STYLES:
             raise TypeError(
                 f'[{self.env}] argument -sos/--sass_output_style is unsupported '
                 'output_style; choose one of nested, expanded, compact, and compressed')
@@ -114,9 +114,6 @@ class Config(object):
                 self.apikey = configs[self.env].get('apikey')
                 self.store = configs[self.env].get('store')
                 self.theme_id = configs[self.env].get('theme_id')
-
-                # default sass output style is nested
-                self.sass_output_style = 'nested'
                 if configs[self.env].get('sass'):
                     self.sass_output_style = configs[self.env]['sass'].get('output_style')
 
@@ -130,7 +127,7 @@ class Config(object):
             'store': self.store,
             'theme_id': self.theme_id,
             'sass': {
-                'output_style': self.sass_output_style
+                'output_style': self.sass_output_style or 'nested'  # default sass output style is nested
             }
         }
         # If the config has been changed, then the config will be saved to config.yml.
