@@ -168,7 +168,7 @@ development:
 
 
 <!-- Badges -->
-[codecov-image]: (https://codecov.io/gh/29next/theme-kit/branch/master/graph/badge.svg?token=LPUOTZ5MZ5
+[codecov-image]: https://codecov.io/gh/29next/theme-kit/branch/master/graph/badge.svg?token=LPUOTZ5MZ5
 [codecov-link]: https://codecov.io/gh/29next/theme-kit
 [pypi-v-image]: https://img.shields.io/pypi/v/next-theme-kit.svg
 [pypi-v-link]: https://pypi.org/project/next-theme-kit/
