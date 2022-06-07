@@ -11,7 +11,7 @@ class Gateway:
     def _request(self, request_type, url, apikey=None, payload={}, files={}):
         headers = {}
         if apikey:
-            headers = {'Authorization': f'Token {apikey}'}
+            headers = {'Authorization': f'Bearer {apikey}'}
 
         return requests.request(request_type, url, headers=headers, data=payload, files=files)
 
