@@ -3,6 +3,7 @@ import glob
 import logging
 import os
 import time
+from urllib import response
 import sass
 
 from watchgod import awatch
@@ -78,8 +79,10 @@ class Command:
                     content = f.read()
                     f.close()
 
-            self.gateway.create_or_update_template(
+            response = self.gateway.create_or_update_template(
                 theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
+            if str(response.status_code).startswith('2'):
+                return
 
     def _pull_templates(self, template_names):
         templates = []
@@ -93,7 +96,6 @@ class Command:
             templates = response.json()
 
         if type(templates) != list:
-            logging.info(f'Theme id #{self.config.theme_id} doesn\'t exist in the system.')
             return
 
         template_count = len(templates)
@@ -131,7 +133,9 @@ class Command:
         for template_name in progress_bar(
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = get_template_name(template_name)
-            self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
+            response = self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
+            if str(response.status_code).startswith('2'):
+                return
 
     def _compile_sass(self):
         logging.info(f'[{self.config.env}] Processing {SASS_SOURCE} to {SASS_DESTINATION}.')
