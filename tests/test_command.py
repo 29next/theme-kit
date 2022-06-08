@@ -317,9 +317,11 @@ class TestCommand(unittest.TestCase):
             f'{os.getcwd()}/layout/base.html'
         ]
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.status_code = 200
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
             'content-type': 'application/json'}
         self.mock_gateway.return_value.delete_template.return_value.ok = True
+        self.mock_gateway.return_value.delete_template.return_value.status_code = 204
         self.mock_gateway.return_value.delete_template.return_value.headers = {'content-type': 'application/json'}
         self.command.config.parser_config(self.parser)
         changes = {
