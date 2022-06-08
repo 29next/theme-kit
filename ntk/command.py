@@ -80,7 +80,7 @@ class Command:
 
             response = self.gateway.create_or_update_template(
                 theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
-            if not str(response.status_code).startswith('2'):
+            if not response.ok:
                 return
 
     def _pull_templates(self, template_names):
@@ -133,7 +133,7 @@ class Command:
                 template_names, prefix=f'[{self.config.env}] Progress:', suffix='Complete', length=50):
             template_name = get_template_name(template_name)
             response = self.gateway.delete_template(theme_id=self.config.theme_id, template_name=template_name)
-            if not str(response.status_code).startswith('2'):
+            if not response.ok:
                 return
 
     def _compile_sass(self):
