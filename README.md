@@ -30,6 +30,10 @@ Update to the latest version of Theme Kit with the following command:
 pip install next-theme-kit --upgrade
 ```
 
+> :warning: **Important**
+>
+> As of version 1.0.2, the store authentication uses Oauth and requires creating an store Oauth App with theme:read and theme:write permissions
+
 ## Usage
 With the package installed, you can now use the commands inside your theme directory and work on a storefront theme.
 
