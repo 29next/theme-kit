@@ -29,7 +29,7 @@ class TestGateway(unittest.TestCase):
 
         expected_calls = [call(
             'POST', 'http://simple.com/api/admin/themes/5/templates/',
-            headers={'Authorization': 'Token apikey'},
+            headers={'Authorization': 'Bearer apikey'},
             data={'name': 'assets/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'},
             files=files)
         ]
@@ -57,7 +57,7 @@ class TestGateway(unittest.TestCase):
         self.gateway.get_themes()
 
         expected_call = call('GET', 'http://simple.com/api/admin/themes/',
-                             headers={'Authorization': 'Token apikey'}, data={}, files={})
+                             headers={'Authorization': 'Bearer apikey'}, data={}, files={})
         self.assertIn(expected_call, mock_request.mock_calls)
 
     ####
@@ -84,7 +84,7 @@ class TestGateway(unittest.TestCase):
         self.gateway.create_theme(name="Test Init Theme")
 
         expected_call = call('POST', 'http://simple.com/api/admin/themes/',
-                             headers={'Authorization': 'Token apikey'}, data=payload, files={})
+                             headers={'Authorization': 'Bearer apikey'}, data=payload, files={})
         self.assertIn(expected_call, mock_request.mock_calls)
 
     #####
@@ -111,7 +111,7 @@ class TestGateway(unittest.TestCase):
         self.gateway.get_templates(theme_id=6)
 
         expected_call = call('GET', 'http://simple.com/api/admin/themes/6/templates/',
-                             headers={'Authorization': 'Token apikey'}, data={}, files={})
+                             headers={'Authorization': 'Bearer apikey'}, data={}, files={})
         self.assertIn(expected_call, mock_request.mock_calls)
 
     #####
@@ -137,7 +137,7 @@ class TestGateway(unittest.TestCase):
         self.gateway.get_template(theme_id=6, template_name=template_name)
 
         expected_call = call('GET', f'http://simple.com/api/admin/themes/6/templates/?name={template_name}',
-                             headers={'Authorization': 'Token apikey'}, data={}, files={})
+                             headers={'Authorization': 'Bearer apikey'}, data={}, files={})
         self.assertIn(expected_call, mock_request.mock_calls)
 
     #####
@@ -168,7 +168,7 @@ class TestGateway(unittest.TestCase):
             theme_id=6, template_name=payload['name'], content=payload['content'], files=files)
 
         expected_call = call('POST', 'http://simple.com/api/admin/themes/6/templates/',
-                             headers={'Authorization': 'Token apikey'}, data=payload, files=files)
+                             headers={'Authorization': 'Bearer apikey'}, data=payload, files=files)
         self.assertIn(expected_call, mock_request.mock_calls)
 
     #####
@@ -196,5 +196,5 @@ class TestGateway(unittest.TestCase):
         self.gateway.delete_template(theme_id=6, template_name='asset/custom.css')
 
         expected_call = call('DELETE', 'http://simple.com/api/admin/themes/6/templates/?name=asset/custom.css',
-                             headers={'Authorization': 'Token apikey'}, data={}, files={})
+                             headers={'Authorization': 'Bearer apikey'}, data={}, files={})
         self.assertIn(expected_call, mock_request.mock_calls)
