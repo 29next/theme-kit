@@ -21,7 +21,13 @@ pip install next-theme-kit
 See how to install `python` and `pip` with [HomeBrew](https://docs.brew.sh/Homebrew-and-Python#python-3x). Once you have completed this step you can install using the `pip` instructions above.
 
 #### Windows Requirements
-See how to install `python` and `pip` with [Chocolatey](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html). Once you have completed this step you can install using the `pip` instructions above.
+
+* **Option 1 (Recommended)** - Windows 10 and above feature WSL (Windows Subsystem for Linux) which provides a native Linux environment, see how to [Install WSL with Ubuntu](https://docs.microsoft.com/en-us/windows/wsl/install). Once you have installed WSL, follow the [best practice guides to configure and use with VS Code](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) and then follow the `pip` instructions above to install Theme Kit.
+
+* **Option 2** - Installing `python` and `pip` into Windows natively can be done with [Chocolatey](https://python-docs.readthedocs.io/en/latest/starting/install3/win.html). Also, [install Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=Build%20Tools#build-tools-for-visual-studio-2022) to support Sass compiling. Once you have completed this step you can install using the `pip` instructions above.
+
+> **Use Python Virtual Environments** - For Mac, Windows, and Linux, it's a best practice to use a Python Virtual Environment to isolate python packages and dependecies to reduce potential conflicts or errors, [more on creating a Python Virutal Environment](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/).
+
 
 #### Updating Theme Kit
 
