@@ -1,4 +1,3 @@
 [report]
-show_missing = True
 omit =
     ntk/ntk_parser.py
