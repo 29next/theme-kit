@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 tests_require = [
     "flake8==3.9.2",
