@@ -52,7 +52,7 @@ class TestGateway(unittest.TestCase):
         ]
         self.assertEqual(log.output, expected_logging)
 
-        # check if call request complated
+        # check if call request completed
         mock_request.return_value.headers = {'content-type': 'application/json'}
         self.gateway.get_themes()
 
@@ -75,7 +75,7 @@ class TestGateway(unittest.TestCase):
         ]
         self.assertEqual(log.output, expected_logging)
 
-        # check if call request complated
+        # check if call request completed
         mock_request.return_value.ok = True
         mock_request.return_value.headers = {'content-type': 'application/json'}
         payload = {
@@ -104,7 +104,7 @@ class TestGateway(unittest.TestCase):
         ]
         self.assertEqual(log.output, expected_logging)
 
-        # check if call request complated
+        # check if call request completed
         mock_request.return_value.ok = True
         mock_request.return_value.headers = {'content-type': 'application/json'}
 
@@ -130,7 +130,7 @@ class TestGateway(unittest.TestCase):
         ]
         self.assertEqual(log.output, expected_logging)
 
-        # check if call request complated
+        # check if call request completed
         mock_request.return_value.ok = True
         mock_request.return_value.headers = {'content-type': 'application/json'}
 
@@ -155,7 +155,7 @@ class TestGateway(unittest.TestCase):
         ]
         self.assertEqual(log.output, expected_logging)
 
-        # check if call request complated
+        # check if call request completed
         mock_request.return_value.ok = True
         mock_request.return_value.headers = {'content-type': 'application/json'}
         payload = {

@@ -4,7 +4,7 @@ __version__ = '1.0.2'
 
 tests_require = [
     "flake8==3.9.2",
-    "nose==1.3.7"
+    "pytest==7.2.2"
 ]
 
 with open('README.md', 'r') as fh:
@@ -31,5 +31,5 @@ setup(
         ],
     },
     packages=find_packages(),
-    python_requires='>=3.6'
+    python_requires='>=3.7'
 )
