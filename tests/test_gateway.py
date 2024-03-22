@@ -27,13 +27,56 @@ class TestGateway(unittest.TestCase):
 
         self.gateway._request(request_type, url, apikey=self.apikey, payload=payload, files=files)
 
-        expected_calls = [call(
-            'POST', 'http://simple.com/api/admin/themes/5/templates/',
-            headers={'Authorization': 'Bearer apikey'},
-            data={'name': 'assets/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'},
-            files=files)
+        expected_calls = [
+            call(
+                'POST', 'http://simple.com/api/admin/themes/5/templates/',
+                headers={'Authorization': 'Bearer apikey'},
+                data={
+                    'name': 'assets/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'},
+                files=files),
+            call().status_code.__eq__(429)
         ]
-        self.assertEqual(mock_request.mock_calls, expected_calls)
+        assert mock_request.mock_calls == expected_calls
+
+    @patch('ntk.gateway.requests.request', autospec=True)
+    def test_request_with_rate_limit_should_retry(self, mock_request):
+        mock_response_429 = MagicMock()
+        mock_response_429.status_code = 429
+        mock_response_429.content.decode.return_value = "throttled"
+
+        # Mock the response for the second call with status code 200
+        mock_response_200 = MagicMock()
+        mock_response_200.status_code = 200
+
+        mock_request.side_effect = [mock_response_429, mock_response_200]
+
+        request_type = 'POST'
+        url = 'http://simple.com/api/admin/themes/5/templates/'
+        payload = {
+            'name': 'assets/base.html',
+            'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
+        }
+        files = {'file': ('assets/image.jpg', self.mock_img_file)}
+
+        self.gateway._request(request_type, url, apikey=self.apikey, payload=payload, files=files)
+
+        assert mock_request.call_count == 2
+
+        expected_calls = [
+            call(
+                'POST', 'http://simple.com/api/admin/themes/5/templates/',
+                headers={'Authorization': 'Bearer apikey'},
+                data={
+                    'name': 'assets/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
+                }, files=files),
+            call(
+                'POST', 'http://simple.com/api/admin/themes/5/templates/',
+                headers={'Authorization': 'Bearer apikey'},
+                data={
+                    'name': 'assets/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
+                }, files=files)
+        ]
+        assert mock_request.mock_calls == expected_calls
 
     #####
     # get_themes
