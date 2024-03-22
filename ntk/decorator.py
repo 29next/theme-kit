@@ -45,7 +45,7 @@ def check_error(error_format='{error_default} -> {error_msg}', response_json=Tru
                 result = response.json()
                 error_msg = " -> "
                 for key, value in result.items():
-                    if type(value) == list:
+                    if isinstance(value, list):
                         error_msg += f'"{key}" : {" ".join(value)}'
                     else:
                         error_msg += value
