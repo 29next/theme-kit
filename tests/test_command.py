@@ -345,10 +345,11 @@ class TestCommand(unittest.TestCase):
                 theme_id=1234, template_name='layout/base.html')
             self.assertIn(expected_call_deleted, self.mock_gateway.mock_calls)
 
+    @patch("ntk.command.time", autospec=True)
     @patch("ntk.command.Command._get_accept_files", autospec=True)
     @patch("builtins.open", autospec=True)
     def test_watch_command_with_create_image_file_should_call_gateway_with_correct_arguments(
-        self, mock_open_file, mock_get_accept_file
+        self, mock_open_file, mock_get_accept_file, mock_time
     ):
         mock_get_accept_file.return_value = [
             f'{os.getcwd()}/assets/image.jpg',
@@ -370,6 +371,8 @@ class TestCommand(unittest.TestCase):
             files={'file': ('assets/image.jpg', mock_img_file)}
         )
         self.assertIn(expected_call_added, self.mock_gateway.mock_calls)
+
+        mock_time.sleep.assert_called_once_with(0.07)
 
     @patch("ntk.command.Command._get_accept_files", autospec=True)
     @patch("ntk.command.Command._compile_sass", autospec=True)

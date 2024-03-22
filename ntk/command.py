@@ -80,6 +80,8 @@ class Command:
 
             response = self.gateway.create_or_update_template(
                 theme_id=self.config.theme_id, template_name=relative_pathfile, content=content, files=files)
+
+            time.sleep(0.07)
             if not response.ok:
                 return
 
@@ -94,7 +96,7 @@ class Command:
             response = self.gateway.get_templates(theme_id=self.config.theme_id)
             templates = response.json()
 
-        if type(templates) != list:
+        if not isinstance(templates, list):
             return
 
         template_count = len(templates)
