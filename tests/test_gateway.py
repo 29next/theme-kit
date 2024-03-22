@@ -17,6 +17,11 @@ class TestGateway(unittest.TestCase):
     #####
     @patch('ntk.gateway.requests.request', autospec=True)
     def test_request(self, mock_request):
+        mock_response_200 = MagicMock()
+        mock_response_200.status_code = 200
+
+        mock_request.return_value = mock_response_200
+
         request_type = 'POST'
         url = 'http://simple.com/api/admin/themes/5/templates/'
         payload = {
@@ -33,8 +38,7 @@ class TestGateway(unittest.TestCase):
                 headers={'Authorization': 'Bearer apikey'},
                 data={
                     'name': 'assets/base.html', 'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'},
-                files=files),
-            call().status_code.__eq__(429)
+                files=files)
         ]
         assert mock_request.mock_calls == expected_calls
 
