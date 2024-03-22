@@ -372,7 +372,7 @@ class TestCommand(unittest.TestCase):
         )
         self.assertIn(expected_call_added, self.mock_gateway.mock_calls)
 
-        assert mock_time.call_count == 1
+        mock_time.sleep.assert_called_once_with(0.07)
 
     @patch("ntk.command.Command._get_accept_files", autospec=True)
     @patch("ntk.command.Command._compile_sass", autospec=True)
