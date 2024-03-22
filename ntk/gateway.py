@@ -14,7 +14,10 @@ class Gateway:
         if apikey:
             headers = {'Authorization': f'Bearer {apikey}'}
 
-        return requests.request(request_type, url, headers=headers, data=payload, files=files)
+        response = requests.request(request_type, url, headers=headers, data=payload, files=files)
+        if response.status_code == 429 and "throttled" in response.content.decode():
+            return self._request(request_type, url, apikey, payload, files)
+        return response
 
     @check_error(error_format='Missing Themes in {store}')
     def get_themes(self):
