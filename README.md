@@ -14,7 +14,7 @@ Theme Kit is a python package available on [PyPi](https://pypi.org/project/next-
 If you already have `python` and `pip`, install with the following command:
 
 ```
-pip install next-theme-kit
+python -m pip install next-theme-kit
 ```
 
 #### Mac OSX Requirements
@@ -33,7 +33,7 @@ See how to install `python` and `pip` with [HomeBrew](https://docs.brew.sh/Homeb
 
 Update to the latest version of Theme Kit with the following command:
 ```
-pip install next-theme-kit --upgrade
+python -m pip install next-theme-kit --upgrade
 ```
 
 > :warning: **Important**
