@@ -11,7 +11,7 @@ import subprocess
 
 
 def auto_install_and_generate_ntk_command():
-    subprocess.run(['python', '-m', 'pip', 'install',  'next-theme-kit'])
+    subprocess.run(['python', '-m', 'pip', 'install',  'next-theme-kit', "--upgrade"])
 
     # Set up a command alias: 'ntk' will execute 'python -m ntk' with any passed arguments
     os.system("doskey ntk=python -m ntk $*")
