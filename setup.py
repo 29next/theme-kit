@@ -27,7 +27,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ntk = ntk.ntk:main',
+            'ntk = ntk.__main__:main',
         ],
     },
     packages=find_packages(),
