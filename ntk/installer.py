@@ -13,7 +13,7 @@ if __name__ == "__main__":
     subprocess.run(['python', '-m', 'pip', 'install',  'next-theme-kit'])
 
     # Set up a command alias: 'ntk' will execute 'python -m ntk' with any passed arguments
-    os.system("doskey ntk=python -m ntk.ntk $*")
+    os.system("doskey ntk=python -m ntk $*")
 
     # Open a new command prompt window and keep it open
     os.system("cmd /k")

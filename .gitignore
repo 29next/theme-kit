@@ -10,7 +10,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -152,5 +151,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-dist/*
 build/*
