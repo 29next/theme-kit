@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-__version__ = '1.0.5'
+__version__ = '1.0.6'
 
 tests_require = [
     "flake8==3.9.2",
@@ -12,7 +12,7 @@ with open('README.md', 'r') as fh:
 
 
 setup(
-    name='next-theme-kit',
+    name='next_theme_kit',
     author="29next",
     author_email="dev@29next.com",
     url='https://github.com/29next/theme-kit',
