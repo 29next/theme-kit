@@ -38,7 +38,7 @@ python -m pip install next-theme-kit --upgrade
 
 > :warning: **Important**
 >
-> As of version 1.0.2, the store authentication uses Oauth and requires creating a store **Oauth App** with `theme:read` and `theme:write` permissions.
+> As of version 1.0.2, the store authentication uses Oauth and requires creating a store **Oauth App** with `themes:read` and `themes:write` permissions.
 
 ## Usage
 With the package installed, you can now use the commands inside your theme directory and work on a storefront theme.
