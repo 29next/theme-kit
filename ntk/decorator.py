@@ -39,9 +39,9 @@ def check_error(error_format='{error_default} -> {error_msg}', response_json=Tru
             error_msg = ""
             if response.ok and not response_json:
                 return response
-            elif response.ok and response.headers.get('content-type') == 'application/json':
+            elif response.ok and response.headers.get('content-type', '').startswith('application/json'):
                 return response
-            elif response.headers.get('content-type') == 'application/json':
+            elif response.headers.get('content-type', '').startswith('application/json'):
                 result = response.json()
                 error_msg = " -> "
                 for key, value in result.items():

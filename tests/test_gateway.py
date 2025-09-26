@@ -100,7 +100,7 @@ class TestGateway(unittest.TestCase):
         self.assertEqual(log.output, expected_logging)
 
         # check if call request completed
-        mock_request.return_value.headers = {'content-type': 'application/json'}
+        mock_request.return_value.headers = {'content-type': 'application/json; charset=utf-8'}
         self.gateway.get_themes()
 
         expected_call = call('GET', 'http://simple.com/api/admin/themes/',
@@ -124,7 +124,7 @@ class TestGateway(unittest.TestCase):
 
         # check if call request completed
         mock_request.return_value.ok = True
-        mock_request.return_value.headers = {'content-type': 'application/json'}
+        mock_request.return_value.headers = {'content-type': 'application/json; charset=utf-8'}
         payload = {
             "name": "Test Init Theme"
         }
@@ -153,7 +153,7 @@ class TestGateway(unittest.TestCase):
 
         # check if call request completed
         mock_request.return_value.ok = True
-        mock_request.return_value.headers = {'content-type': 'application/json'}
+        mock_request.return_value.headers = {'content-type': 'application/json; charset=utf-8'}
 
         self.gateway.get_templates(theme_id=6)
 
@@ -179,7 +179,7 @@ class TestGateway(unittest.TestCase):
 
         # check if call request completed
         mock_request.return_value.ok = True
-        mock_request.return_value.headers = {'content-type': 'application/json'}
+        mock_request.return_value.headers = {'content-type': 'application/json; charset=utf-8'}
 
         self.gateway.get_template(theme_id=6, template_name=template_name)
 
@@ -204,7 +204,7 @@ class TestGateway(unittest.TestCase):
 
         # check if call request completed
         mock_request.return_value.ok = True
-        mock_request.return_value.headers = {'content-type': 'application/json'}
+        mock_request.return_value.headers = {'content-type': 'application/json; charset=utf-8'}
         payload = {
             'name': 'assets/base.html',
             'content': '{% load i18n %}\n\n<div class="mt-2">My home page</div>'
@@ -223,7 +223,7 @@ class TestGateway(unittest.TestCase):
     #####
     @patch('ntk.gateway.requests.request', autospec=True)
     def test_delete_template(self, mock_request):
-        mock_request.return_value.headers = {'content-type': 'application/json'}
+        mock_request.return_value.headers = {'content-type': 'application/json; charset=utf-8'}
         # check if call request failed
         with self.assertLogs(level='INFO') as log:
             mock_request.return_value.ok = False
