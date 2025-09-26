@@ -170,10 +170,12 @@ class TestGateway(unittest.TestCase):
         # check if call request failed
         with self.assertLogs(level='INFO') as log:
             mock_request.return_value.ok = False
+            mock_request.return_value.json.return_value = {
+                'detail': 'You do not have permission to perform this action.'}
             self.gateway.get_template(theme_id=6, template_name=template_name)
 
         expected_logging = [
-            'INFO:root:Downloading assets/custom.css file from theme id #6 failed.'
+            'INFO:root:Downloading assets/custom.css file from theme id #6 failed. -> You do not have permission to perform this action.' # noqa
         ]
         self.assertEqual(log.output, expected_logging)
 
@@ -195,11 +197,14 @@ class TestGateway(unittest.TestCase):
         # check if call request failed
         with self.assertLogs(level='INFO') as log:
             mock_request.return_value.ok = False
+            mock_request.return_value.json.return_value = {
+                'detail': 'You do not have permission to perform this action.'}
             self.gateway.create_or_update_template(theme_id=6, template_name='asset/custom.css')
 
         expected_logging = [
-            'INFO:root:Uploading asset/custom.css file to theme id #6 failed.'
+            'INFO:root:Uploading asset/custom.css file to theme id #6 failed. -> You do not have permission to perform this action.' # noqa
         ]
+        print(log.output)
         self.assertEqual(log.output, expected_logging)
 
         # check if call request completed
