@@ -52,7 +52,8 @@ class TestCommand(unittest.TestCase):
     @patch("ntk.command.Config.write_config", autospec=True)
     def test_init_command_with_name_and_configs_should_be_call_create_theme_and_save_config(self, mock_write_config):
         self.mock_gateway.return_value.create_theme.return_value.ok = True
-        self.mock_gateway.return_value.create_theme.return_value.headers = {'content-type': 'application/json'}
+        self.mock_gateway.return_value.create_theme.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
         self.mock_gateway.return_value.create_theme.return_value.json.return_value = {
             'id': 1234,
             'name': 'Test Init Theme',
@@ -89,7 +90,8 @@ class TestCommand(unittest.TestCase):
     @patch("ntk.command.Config.write_config", autospec=True)
     def test_list_command_with_configs_should_be_show_theme_id_and_theme_name(self, mock_write_config):
         self.mock_gateway.return_value.get_themes.return_value.ok = True
-        self.mock_gateway.return_value.get_themes.return_value.headers = {'content-type': 'application/json'}
+        self.mock_gateway.return_value.get_themes.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
         self.mock_gateway.return_value.get_themes.return_value.json.return_value = {
             "count": 2,
             "next": None,
@@ -131,7 +133,8 @@ class TestCommand(unittest.TestCase):
         self, mock_write_config
     ):
         self.mock_gateway.return_value.get_themes.return_value.ok = True
-        self.mock_gateway.return_value.get_themes.return_value.headers = {'content-type': 'application/json'}
+        self.mock_gateway.return_value.get_themes.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
         self.mock_gateway.return_value.get_themes.return_value.json.return_value = {
             "count": 0,
             "next": None,
@@ -173,7 +176,8 @@ class TestCommand(unittest.TestCase):
         self, mock_write_config, mock_open_file
     ):
         self.mock_gateway.return_value.get_templates.return_value.ok = True
-        self.mock_gateway.return_value.get_templates.return_value.headers = {'content-type': 'application/json'}
+        self.mock_gateway.return_value.get_templates.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
         self.mock_gateway.return_value.get_templates.return_value.json.return_value = [
             {
                 "theme": 1234,
@@ -278,7 +282,8 @@ class TestCommand(unittest.TestCase):
         self, mock_write_config, mock_open_file
     ):
         self.mock_gateway.return_value.get_template.return_value.ok = True
-        self.mock_gateway.return_value.get_template.return_value.headers = {'content-type': 'application/json'}
+        self.mock_gateway.return_value.get_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
         self.mock_gateway.return_value.get_template.return_value.json.return_value = {
             "theme": 1234,
             "name": "assets/image.png",
@@ -319,10 +324,11 @@ class TestCommand(unittest.TestCase):
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
         self.mock_gateway.return_value.create_or_update_template.return_value.status_code = 200
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
-            'content-type': 'application/json'}
+            'content-type': 'application/json; charset=utf-8'}
         self.mock_gateway.return_value.delete_template.return_value.ok = True
         self.mock_gateway.return_value.delete_template.return_value.status_code = 204
-        self.mock_gateway.return_value.delete_template.return_value.headers = {'content-type': 'application/json'}
+        self.mock_gateway.return_value.delete_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
         self.command.config.parser_config(self.parser)
         changes = {
             (Change.added, './assets/base.html'),
@@ -357,7 +363,7 @@ class TestCommand(unittest.TestCase):
         self.command.config.parser_config(self.parser)
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
-            'content-type': 'application/json'}
+            'content-type': 'application/json; charset=utf-8'}
         changes = [
             (Change.added, './assets/image.jpg'),
         ]
@@ -381,7 +387,7 @@ class TestCommand(unittest.TestCase):
         ]
         self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
         self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
-            'content-type': 'application/json'}
+            'content-type': 'application/json; charset=utf-8'}
 
         changes = {
             (Change.modified, 'sass/theme.scss'),

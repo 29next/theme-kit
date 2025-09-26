@@ -37,11 +37,12 @@ def check_error(error_format='{error_default} -> {error_msg}', response_json=Tru
             response = func(self, *func_args, **func_kwargs)
             error_default = f'{func.__name__.capitalize().replace("_", " ")} of {self.store} failed.'
             error_msg = ""
+            content_type = response.headers.get('content-type', '').lower()
             if response.ok and not response_json:
                 return response
-            elif response.ok and response.headers.get('content-type') == 'application/json':
+            elif response.ok and content_type.startswith('application/json'):
                 return response
-            elif response.headers.get('content-type') == 'application/json':
+            elif content_type.startswith('application/json'):
                 result = response.json()
                 error_msg = " -> "
                 for key, value in result.items():
