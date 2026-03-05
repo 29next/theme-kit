@@ -3,9 +3,9 @@
 [![Build Status][GHAction-image]][GHAction-link]
 [![CodeCov][codecov-image]][codecov-link]
 
-# 29 Next Theme Kit
+# Next Commerce Theme Kit
 
-Theme Kit is a cross-platform command line tool to build and maintain storefront themes with [Sass Processing](#sass-processing) support on the 29 Next platform.
+Theme Kit is a cross-platform command line tool to build and maintain storefront themes with [Sass Processing](#sass-processing) support on the Next Commerce platform.
 
 ## Installation
 
