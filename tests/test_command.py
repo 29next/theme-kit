@@ -311,6 +311,62 @@ class TestCommand(unittest.TestCase):
         mock_write_config.assert_not_called()
 
     #####
+    # push
+    #####
+    def test_push_command_without_config_file_should_be_required_api_key_store_and_theme_id(self):
+        with self.assertRaises(TypeError) as error:
+            self.parser.apikey = None
+            self.parser.store = None
+            self.parser.theme_id = None
+            self.command.push(self.parser)
+        self.assertEqual(
+            str(error.exception), '[development] argument -a/--apikey, -s/--store, -t/--theme_id are required.')
+
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
+    def test_push_command_with_configs_and_without_filenames_should_upload_all_files(
+        self, mock_get_accept_files
+    ):
+        mock_get_accept_files.return_value = [
+            f'{os.getcwd()}/layout/base.html',
+        ]
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
+        self.command.config.parser_config(self.parser)
+        self.parser.filenames = None
+        with patch("builtins.open", self.mock_file):
+            self.command.push(self.parser)
+        expected_call = call().create_or_update_template(
+            theme_id=1234,
+            template_name='layout/base.html',
+            content='{% load i18n %}\n\n<div class="mt-2">My home page</div>',
+            files={}
+        )
+        self.assertIn(expected_call, self.mock_gateway.mock_calls)
+
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
+    def test_push_command_with_filenames_should_upload_only_specified_files(
+        self, mock_get_accept_files
+    ):
+        mock_get_accept_files.return_value = [
+            f'{os.getcwd()}/layout/base.html',
+        ]
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
+        self.command.config.parser_config(self.parser)
+        self.parser.filenames = ['layout/base.html']
+        with patch("builtins.open", self.mock_file):
+            self.command.push(self.parser)
+        expected_call = call().create_or_update_template(
+            theme_id=1234,
+            template_name='layout/base.html',
+            content='{% load i18n %}\n\n<div class="mt-2">My home page</div>',
+            files={}
+        )
+        self.assertIn(expected_call, self.mock_gateway.mock_calls)
+
+    #####
     # watch (_handle_files_change)
     #####
     @patch("ntk.command.Command._get_accept_files", autospec=True)

@@ -20,6 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+logging.getLogger('watchfiles').setLevel(logging.WARNING)
 
 
 class Command:
@@ -45,10 +46,10 @@ class Command:
         for event_type, pathfile in changes:
             template_name = get_template_name(pathfile)
             if event_type in [Change.added, Change.modified]:
-                logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
+                logging.info(f'[{self.config.env}] {event_type.name.title()} {template_name}')
                 self._push_templates([template_name], compile_sass=True)
             elif event_type == Change.deleted:
-                logging.info(f'[{self.config.env}] {str(event_type)} {template_name}')
+                logging.info(f'[{self.config.env}] {event_type.name.title()} {template_name}')
                 self._delete_templates([template_name])
 
     def _push_templates(self, template_names, compile_sass=False):
