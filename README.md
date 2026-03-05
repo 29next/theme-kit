@@ -182,5 +182,5 @@ development:
 [codecov-link]: https://codecov.io/gh/29next/theme-kit
 [pypi-v-image]: https://img.shields.io/pypi/v/next-theme-kit.svg
 [pypi-v-link]: https://pypi.org/project/next-theme-kit/
-[GHAction-image]: https://github.com/29next/theme-kit/actions/workflows/test.yml/badge.svg?branch=master
-[GHAction-link]: https://github.com/29next/theme-kit/actions?query=event%3Apush+branch%3Amaster
+[GHAction-image]: https://github.com/NextCommerceCo/theme-kit/actions/workflows/test.yml/badge.svg?branch=master
+[GHAction-link]: https://github.com/NextCommerceCo/theme-kit/actions?query=event%3Apush+branch%3Amaster
