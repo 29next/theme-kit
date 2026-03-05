@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import call, MagicMock, mock_open, patch
 
-from watchgod.watcher import Change
+from watchfiles import Change
 
 from ntk import conf
 from ntk.command import Command
@@ -396,6 +396,15 @@ class TestCommand(unittest.TestCase):
         with patch("builtins.open", self.mock_file):
             self.command._handle_files_change(changes)
             mock_compile_sass.assert_called_once()
+
+    @patch("ntk.command.asyncio.run")
+    @patch("ntk.command.awatch", autospec=True)
+    def test_watch_command_uses_asyncio_run(self, mock_awatch, mock_asyncio_run):
+        mock_asyncio_run.side_effect = lambda coro: coro.close()
+        self.command.config.parser_config(self.parser)
+        with patch("os.getcwd", return_value="/fake/path"):
+            self.command.watch(self.parser)
+        mock_asyncio_run.assert_called_once()
 
     #####
     # sass

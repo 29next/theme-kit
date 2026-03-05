@@ -5,8 +5,7 @@ import os
 import time
 import sass
 
-from watchgod import awatch
-from watchgod.watcher import Change
+from watchfiles import awatch, Change
 
 from ntk.conf import (
     Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE
@@ -198,8 +197,7 @@ class Command:
             async for changes in awatch('.'):
                 self._handle_files_change(changes)
 
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
+        asyncio.run(main())
 
     @parser_config()
     def compile_sass(self, parser):
