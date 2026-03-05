@@ -3,8 +3,9 @@ from setuptools import find_packages, setup
 __version__ = '1.0.7'
 
 tests_require = [
-    "flake8==3.9.2",
-    "pytest==7.2.2"
+    "flake8",
+    "pytest",
+    "pytest-cov",
 ]
 
 with open('README.md', 'r') as fh:
@@ -22,7 +23,7 @@ setup(
     install_requires=[
         "PyYAML>=5.4",
         "requests>=2.25",
-        "watchgod>=0.7",
+        "watchfiles>=0.18",
         "libsass>=0.21.0"
     ],
     entry_points={
@@ -30,6 +31,7 @@ setup(
             'ntk = ntk.__main__:main',
         ],
     },
+    extras_require={"test": tests_require},
     packages=find_packages(),
-    python_requires='>=3.8'
+    python_requires='>=3.10'
 )
