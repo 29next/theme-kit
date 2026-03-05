@@ -12,6 +12,8 @@ MEDIA_FILE_EXTENSIONS = [
     '.webp', '.mp4', '.webm', '.mp3', '.pdf',
 ]
 
+SASS_EXTENSIONS = ['.scss']
+
 SASS_SOURCE = 'sass'
 SASS_DESTINATION = 'assets'
 SASS_OUTPUT_STYLES = ['nested', 'expanded', 'compact', 'compressed']

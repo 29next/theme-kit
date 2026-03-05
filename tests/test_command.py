@@ -344,6 +344,60 @@ class TestCommand(unittest.TestCase):
         )
         self.assertIn(expected_call, self.mock_gateway.mock_calls)
 
+    @patch("ntk.command.glob.glob", autospec=True)
+    def test_push_command_ignores_invalid_file_extensions_when_filenames_provided(
+        self, mock_glob
+    ):
+        """Push should silently skip files with unrecognised extensions (e.g. .tmp)."""
+        valid_file = os.path.abspath('templates/index.html')
+        mock_glob.return_value = [valid_file]
+        self.command.config.parser_config(self.parser)
+        self.parser.filenames = ['templates/index.html', 'templates/index.html.tmp']
+        with patch("builtins.open", self.mock_file):
+            self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+            self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+                'content-type': 'application/json; charset=utf-8'}
+            self.command.push(self.parser)
+        # Only the .html file should have been uploaded
+        upload_calls = [
+            c for c in self.mock_gateway.mock_calls
+            if 'create_or_update_template' in str(c) and 'template_name' in str(c)
+        ]
+        self.assertEqual(len(upload_calls), 1)
+        self.assertIn('templates/index.html', str(upload_calls[0]))
+        self.assertNotIn('.tmp', str(upload_calls[0]))
+
+    @patch("ntk.command.glob.glob", autospec=True)
+    def test_get_accept_files_with_no_filenames_returns_only_glob_matched_files(
+        self, mock_glob
+    ):
+        """_get_accept_files with no filenames should return only files matched by GLOB_PATTERN."""
+        from ntk.conf import GLOB_PATTERN
+        valid_files = [
+            os.path.abspath('templates/index.html'),
+            os.path.abspath('assets/style.css'),
+            os.path.abspath('assets/logo.png'),
+        ]
+        # Return valid files on first glob call, empty list for all subsequent pattern calls
+        mock_glob.side_effect = [valid_files] + [[] for _ in range(len(GLOB_PATTERN) - 1)]
+        result = self.command._get_accept_files([])
+        self.assertEqual(result, valid_files)
+
+    @patch("ntk.command.glob.glob", autospec=True)
+    def test_get_accept_files_filters_invalid_extensions_from_provided_filenames(
+        self, mock_glob
+    ):
+        """_get_accept_files should exclude filenames that don't match any GLOB_PATTERN."""
+        from ntk.conf import GLOB_PATTERN
+        valid_file = os.path.abspath('templates/index.html')
+        mock_glob.side_effect = [[valid_file]] + [[] for _ in range(len(GLOB_PATTERN) - 1)]
+        result = self.command._get_accept_files([
+            'templates/index.html',
+            'templates/index.html.tmp',
+            'assets/style.bak',
+        ])
+        self.assertEqual(result, [valid_file])
+
     @patch("ntk.command.Command._get_accept_files", autospec=True)
     def test_push_command_with_filenames_should_upload_only_specified_files(
         self, mock_get_accept_files
@@ -461,6 +515,115 @@ class TestCommand(unittest.TestCase):
         with patch("os.getcwd", return_value="/fake/path"):
             self.command.watch(self.parser)
         mock_asyncio_run.assert_called_once()
+
+    #####
+    # watch (_handle_files_change) - file extension filtering
+    #####
+    def test_watch_ignores_tmp_files_on_added(self):
+        """Temporary files created by editors should be silently ignored."""
+        self.command.config.parser_config(self.parser)
+        changes = [(Change.added, './assets/js/theme.js.tmp.5.1772698646248')]
+        self.command._handle_files_change(changes)
+        self.mock_gateway.return_value.create_or_update_template.assert_not_called()
+
+    def test_watch_ignores_tmp_files_on_deleted(self):
+        """Temporary files deleted by editors should not trigger a theme delete."""
+        self.command.config.parser_config(self.parser)
+        changes = [(Change.deleted, './partials/block_cart_footer.html.tmp.5.1772698662671')]
+        self.command._handle_files_change(changes)
+        self.mock_gateway.return_value.delete_template.assert_not_called()
+
+    def test_watch_ignores_unknown_extensions(self):
+        """Files with unrecognised extensions (.bak, .swp, .pyc, .tmp) should be ignored."""
+        self.command.config.parser_config(self.parser)
+        changes = [
+            (Change.added, './assets/style.bak'),
+            (Change.modified, './templates/home.swp'),
+            (Change.deleted, './layouts/base.pyc'),
+            (Change.added, './assets/app.js.tmp'),
+        ]
+        self.command._handle_files_change(changes)
+        self.mock_gateway.return_value.create_or_update_template.assert_not_called()
+        self.mock_gateway.return_value.delete_template.assert_not_called()
+
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
+    def test_watch_routes_content_extensions_to_push(self, mock_get_accept_files):
+        """All content file extensions (.html, .json, .css, .js) should be pushed."""
+        content_files = [
+            './templates/index.html',
+            './configs/settings.json',
+            './assets/style.css',
+            './assets/app.js',
+        ]
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
+        self.command.config.parser_config(self.parser)
+
+        for filepath in content_files:
+            self.mock_gateway.reset_mock()
+            mock_get_accept_files.return_value = [os.path.abspath(filepath.lstrip('./'))]
+            changes = [(Change.added, filepath)]
+            with patch("builtins.open", self.mock_file):
+                self.command._handle_files_change(changes)
+            self.mock_gateway.return_value.create_or_update_template.assert_called_once()
+
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
+    @patch("builtins.open", autospec=True)
+    def test_watch_routes_media_extensions_to_push(self, mock_open_file, mock_get_accept_files):
+        """All media file extensions should be pushed as binary files."""
+        media_files = [
+            './assets/font.woff2',
+            './assets/icon.gif',
+            './assets/favicon.ico',
+            './assets/photo.png',
+            './assets/photo.jpg',
+            './assets/photo.jpeg',
+            './assets/logo.svg',
+            './assets/font.eot',
+            './assets/font.tff',
+            './assets/font.ttf',
+            './assets/font.woff',
+            './assets/hero.webp',
+            './assets/video.mp4',
+            './assets/video.webm',
+            './assets/audio.mp3',
+            './assets/doc.pdf',
+        ]
+        mock_open_file.return_value = MagicMock()
+        self.mock_gateway.return_value.create_or_update_template.return_value.ok = True
+        self.mock_gateway.return_value.create_or_update_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
+        self.command.config.parser_config(self.parser)
+
+        for filepath in media_files:
+            self.mock_gateway.reset_mock()
+            mock_get_accept_files.return_value = [os.path.abspath(filepath.lstrip('./'))]
+            changes = [(Change.added, filepath)]
+            self.command._handle_files_change(changes)
+            self.mock_gateway.return_value.create_or_update_template.assert_called_once()
+
+    @patch("ntk.command.Command._get_accept_files", autospec=True)
+    def test_watch_routes_valid_deleted_files_to_delete(self, mock_get_accept_files):
+        """Valid file types that are deleted should trigger a theme delete."""
+        self.mock_gateway.return_value.delete_template.return_value.ok = True
+        self.mock_gateway.return_value.delete_template.return_value.headers = {
+            'content-type': 'application/json; charset=utf-8'}
+        self.command.config.parser_config(self.parser)
+        mock_get_accept_files.return_value = []
+
+        valid_deleted_files = [
+            './templates/index.html',
+            './assets/style.css',
+            './assets/app.js',
+            './configs/settings.json',
+            './assets/logo.png',
+        ]
+        for filepath in valid_deleted_files:
+            self.mock_gateway.reset_mock()
+            changes = [(Change.deleted, filepath)]
+            self.command._handle_files_change(changes)
+            self.mock_gateway.return_value.delete_template.assert_called_once()
 
     #####
     # sass

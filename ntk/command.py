@@ -8,7 +8,8 @@ import sass
 from watchfiles import awatch, Change
 
 from ntk.conf import (
-    Config, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE
+    Config, CONTENT_FILE_EXTENSIONS, MEDIA_FILE_EXTENSIONS, GLOB_PATTERN, SASS_DESTINATION, SASS_SOURCE,
+    SASS_EXTENSIONS,
 )
 from ntk.decorator import parser_config
 from ntk.gateway import Gateway
@@ -43,7 +44,10 @@ class Command:
         return template_names
 
     def _handle_files_change(self, changes):
+        valid_extensions = tuple(CONTENT_FILE_EXTENSIONS + MEDIA_FILE_EXTENSIONS + SASS_EXTENSIONS)
         for event_type, pathfile in changes:
+            if not pathfile.endswith(valid_extensions):
+                continue
             template_name = get_template_name(pathfile)
             if event_type in [Change.added, Change.modified]:
                 logging.info(f'[{self.config.env}] {event_type.name.title()} {template_name}')
