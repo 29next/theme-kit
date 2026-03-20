@@ -18,6 +18,14 @@ SASS_SOURCE = 'sass'
 SASS_DESTINATION = 'assets'
 SASS_OUTPUT_STYLES = ['nested', 'expanded', 'compact', 'compressed']
 
+# Tailwind CSS defaults
+TAILWIND_INPUT = 'css/input.css'
+TAILWIND_OUTPUT = 'assets/main.css'
+TAILWIND_BINARY_NAMES = ['./tailwindcss', 'tailwindcss', 'npx tailwindcss']
+TAILWIND_V4_MARKER = '@import "tailwindcss"'
+TAILWIND_V3_CONFIG = 'tailwind.config.js'
+TAILWIND_SASS_COMPAT = 'scripts/sass-compat.py'
+
 GLOB_PATTERN = [
     "assets/**/*.html",
     "assets/**/*.json",
@@ -57,6 +65,12 @@ class Config(object):
     store = None
     theme_id = None
     sass_output_style = None
+
+    # Tailwind config
+    tailwind_input = None
+    tailwind_output = None
+    tailwind_binary = None
+    tailwind_sass_compat = None
 
     env = 'development'
 
@@ -118,8 +132,57 @@ class Config(object):
                 self.theme_id = configs[self.env].get('theme_id')
                 if configs[self.env].get('sass'):
                     self.sass_output_style = configs[self.env]['sass'].get('output_style')
+                if configs[self.env].get('tailwind') is not None:
+                    tw = configs[self.env]['tailwind']
+                    self.tailwind_input = tw.get('input', TAILWIND_INPUT)
+                    self.tailwind_output = tw.get('output', TAILWIND_OUTPUT)
+                    self.tailwind_binary = tw.get('binary')
+                    self.tailwind_sass_compat = tw.get('sass_compat')
 
         return configs
+
+    def detect_tailwind(self):
+        """Auto-detect Tailwind CSS setup if not explicitly configured."""
+        if self.tailwind_input and self.tailwind_binary:
+            return True  # Already configured
+
+        # Check for Tailwind v4 (CSS-based config with @import "tailwindcss")
+        input_file = self.tailwind_input or TAILWIND_INPUT
+        if os.path.exists(input_file):
+            try:
+                with open(input_file, 'r', encoding='utf-8') as f:
+                    content = f.read(1024)  # Only need the first kilobyte
+                if TAILWIND_V4_MARKER in content:
+                    self.tailwind_input = input_file
+                    self.tailwind_output = self.tailwind_output or TAILWIND_OUTPUT
+            except (OSError, UnicodeDecodeError):
+                pass
+
+        # Check for Tailwind v3 (JS config file)
+        if not self.tailwind_input and os.path.exists(TAILWIND_V3_CONFIG):
+            self.tailwind_input = TAILWIND_INPUT if os.path.exists(TAILWIND_INPUT) else None
+            self.tailwind_output = self.tailwind_output or TAILWIND_OUTPUT
+
+        if not self.tailwind_input:
+            return False
+
+        # Find binary if not configured
+        if not self.tailwind_binary:
+            import shutil
+            for binary in TAILWIND_BINARY_NAMES:
+                if binary.startswith('./'):
+                    if os.path.isfile(binary) and os.access(binary, os.X_OK):
+                        self.tailwind_binary = binary
+                        break
+                elif shutil.which(binary):
+                    self.tailwind_binary = binary
+                    break
+
+        # Detect sass-compat.py if not configured
+        if not self.tailwind_sass_compat and os.path.exists(TAILWIND_SASS_COMPAT):
+            self.tailwind_sass_compat = TAILWIND_SASS_COMPAT
+
+        return self.tailwind_binary is not None
 
     def write_config(self):
         configs = self.read_config(update=False)

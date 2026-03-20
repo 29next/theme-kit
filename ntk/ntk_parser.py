@@ -38,6 +38,7 @@ available commands:
     push         Push all theme files from your current direcotry to the store
     watch        Watch for changes in your current directory and push updates to the store
     sass         Process Sass files to CSS files in assets directory
+    tailwind     Compile Tailwind CSS and push to store
 ''' + option_commands,
             usage=argparse.SUPPRESS,
             epilog='Use "ntk [command] --help" for more information about a command.',
@@ -139,4 +140,20 @@ Usage:
             formatter_class=argparse.RawTextHelpFormatter)
         parser_watch.set_defaults(func=self.command.compile_sass)
         self._add_config_arguments(parser_watch)
+
+        # create the parser for the "tailwind" command
+        parser_tailwind = subparsers.add_parser(
+            'tailwind',
+            help='Compile Tailwind CSS and push to store',
+            usage=argparse.SUPPRESS,
+            description='''
+Usage:
+    ntk tailwind [options]
+''' + option_commands,
+            formatter_class=argparse.RawTextHelpFormatter)
+        parser_tailwind.set_defaults(func=self.command.compile_tailwind)
+        parser_tailwind.add_argument(
+            '--minify', action='store_true', dest='minify', default=False,
+            help='Minify the Tailwind CSS output')
+        self._add_config_arguments(parser_tailwind)
         return parser

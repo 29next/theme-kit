@@ -1,13 +1,13 @@
 # Next Commerce Theme Kit
 
-CLI tool (`ntk`) for building and maintaining storefront themes on the Next Commerce platform. Supports Sass processing via `libsass`.
+CLI tool (`ntk`) for building and maintaining storefront themes on the Next Commerce platform. Supports Sass processing via `libsass` and Tailwind CSS compilation.
 
 ## Project Structure
 
 ```
 ntk/
   __main__.py    # Entry point
-  command.py     # All CLI commands (watch, push, pull, checkout, init, list, sass)
+  command.py     # All CLI commands (watch, push, pull, checkout, init, list, sass, tailwind)
   conf.py        # Config loading and constants
   decorator.py   # @parser_config decorator for command validation
   gateway.py     # API client for Next Commerce store
@@ -17,6 +17,7 @@ tests/
   test_gateway.py
   test_config.py
   test_installer.py
+  test_tailwind.py
 ```
 
 ## Development Setup
@@ -70,6 +71,27 @@ pytest --cov=ntk --cov-report xml
 ## Python Support
 
 Requires Python >= 3.10. Tested against 3.10, 3.11, 3.12, 3.13, 3.14 via tox and GitHub Actions.
+
+## Tailwind CSS Integration
+
+ntk supports Tailwind CSS themes alongside traditional Sass themes:
+
+- **Auto-detection:** `ntk watch` and `ntk tailwind` auto-detect Tailwind v4 (`@import "tailwindcss"` in `css/input.css`) or v3 (`tailwind.config.js`)
+- **Binary resolution:** Checks `./tailwindcss` (local binary), `tailwindcss` (PATH), `npx tailwindcss` in order
+- **sass-compat:** If `scripts/sass-compat.py` exists, runs it automatically after Tailwind compilation (strips `@property`, converts oklch to hex, replaces `color-mix()`)
+- **Config:** Optional `tailwind:` section in `config.yml`:
+  ```yaml
+  development:
+    tailwind:
+      input: css/input.css      # default
+      output: assets/main.css   # default
+      binary: ./tailwindcss     # auto-detected
+      sass_compat: scripts/sass-compat.py  # auto-detected
+  ```
+- **Commands:**
+  - `ntk tailwind` — compile once + push CSS to store
+  - `ntk tailwind --minify` — compile minified + push
+  - `ntk watch` — auto-starts Tailwind watcher alongside file watcher, runs sass-compat on CSS output changes
 
 ## Important Conventions
 

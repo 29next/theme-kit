@@ -2,6 +2,9 @@ import asyncio
 import glob
 import logging
 import os
+import shlex
+import subprocess
+import sys
 import time
 import sass
 
@@ -151,6 +154,109 @@ class Command:
             logging.error(f'[{self.config.env}] Sass processing failed, see error below.')
             logging.error(f'[{self.config.env}] {error}')
 
+    def _compile_tailwind(self, minify=False):
+        """Compile Tailwind CSS using the detected or configured binary."""
+        if not self.config.detect_tailwind():
+            logging.warning(f'[{self.config.env}] Tailwind CSS not detected. '
+                            'Ensure css/input.css exists with @import "tailwindcss" '
+                            'and a tailwindcss binary is available.')
+            return False
+
+        binary = self.config.tailwind_binary
+        input_file = self.config.tailwind_input
+        output_file = self.config.tailwind_output
+
+        cmd = f'{binary} -i {input_file} -o {output_file}'
+        if minify:
+            cmd += ' --minify'
+
+        logging.info(f'[{self.config.env}] Compiling Tailwind CSS: {input_file} -> {output_file}')
+
+        try:
+            result = subprocess.run(
+                shlex.split(cmd),
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            if result.returncode != 0:
+                logging.error(f'[{self.config.env}] Tailwind compilation failed:')
+                if result.stderr:
+                    for line in result.stderr.strip().splitlines():
+                        logging.error(f'[{self.config.env}]   {line}')
+                return False
+
+            logging.info(f'[{self.config.env}] Tailwind CSS compiled successfully.')
+
+        except FileNotFoundError:
+            logging.error(f'[{self.config.env}] Tailwind CLI not found at "{binary}". '
+                          'Download from https://github.com/tailwindlabs/tailwindcss/releases '
+                          'or install via npm.')
+            return False
+        except subprocess.TimeoutExpired:
+            logging.error(f'[{self.config.env}] Tailwind compilation timed out after 60 seconds.')
+            return False
+
+        # Run sass-compat.py post-processor if present
+        if self.config.tailwind_sass_compat and os.path.exists(self.config.tailwind_sass_compat):
+            logging.info(f'[{self.config.env}] Running sass-compat post-processor on {output_file}')
+            try:
+                compat_result = subprocess.run(
+                    [sys.executable, self.config.tailwind_sass_compat, output_file],
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                if compat_result.returncode != 0:
+                    logging.error(f'[{self.config.env}] sass-compat.py failed:')
+                    if compat_result.stderr:
+                        for line in compat_result.stderr.strip().splitlines():
+                            logging.error(f'[{self.config.env}]   {line}')
+                    return False
+                logging.info(f'[{self.config.env}] sass-compat post-processing complete.')
+            except FileNotFoundError:
+                logging.warning(f'[{self.config.env}] Python not found for sass-compat.py. Skipping.')
+            except subprocess.TimeoutExpired:
+                logging.error(f'[{self.config.env}] sass-compat.py timed out after 30 seconds.')
+                return False
+
+        return True
+
+    def _start_tailwind_watch(self):
+        """Start Tailwind CLI in watch mode as a background subprocess."""
+        if not self.config.detect_tailwind():
+            return None
+
+        binary = self.config.tailwind_binary
+        input_file = self.config.tailwind_input
+        output_file = self.config.tailwind_output
+
+        cmd = f'{binary} -i {input_file} -o {output_file} --watch'
+
+        logging.info(f'[{self.config.env}] Starting Tailwind watcher: {input_file} -> {output_file}')
+
+        try:
+            process = subprocess.Popen(
+                shlex.split(cmd),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+            return process
+        except FileNotFoundError:
+            logging.error(f'[{self.config.env}] Tailwind CLI not found at "{binary}". '
+                          'Tailwind watch disabled.')
+            return None
+
+    def _stop_tailwind_watch(self, process):
+        """Stop the Tailwind watch subprocess."""
+        if process and process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+            logging.info(f'[{self.config.env}] Tailwind watcher stopped.')
+
     @parser_config(theme_id_required=False)
     def init(self, parser):
         if parser.name:
@@ -196,11 +302,40 @@ class Command:
         logging.info(f'[{self.config.env}] Current theme id {self.config.theme_id}')
         logging.info(f'[{self.config.env}] Preview theme URL {self.config.store}?preview_theme={self.config.theme_id}')
         logging.info(f'[{self.config.env}] Watching for file changes in {current_pathfile}')
+
+        # Start Tailwind watcher if detected
+        tailwind_process = None
+        tailwind_output = None
+        if self.config.detect_tailwind():
+            tailwind_output = os.path.abspath(self.config.tailwind_output)
+            # Do initial compilation before starting watch
+            self._compile_tailwind()
+            tailwind_process = self._start_tailwind_watch()
+            if tailwind_process:
+                logging.info(f'[{self.config.env}] Tailwind watcher running (PID {tailwind_process.pid})')
+
         logging.info(f'[{self.config.env}] Press Ctrl + C to stop')
 
         async def main():
-            async for changes in awatch('.'):
-                self._handle_files_change(changes)
+            try:
+                async for changes in awatch('.'):
+                    # If Tailwind output file changed (from Tailwind watcher),
+                    # run sass-compat before pushing
+                    if tailwind_output:
+                        tw_changes = [(t, p) for t, p in changes if os.path.abspath(p) == tailwind_output]
+                        if tw_changes and self.config.tailwind_sass_compat:
+                            logging.info(f'[{self.config.env}] Tailwind output changed, running sass-compat...')
+                            try:
+                                subprocess.run(
+                                    [sys.executable, self.config.tailwind_sass_compat, self.config.tailwind_output],
+                                    capture_output=True, text=True, timeout=30
+                                )
+                            except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+                                logging.warning(f'[{self.config.env}] sass-compat failed: {e}')
+
+                    self._handle_files_change(changes)
+            finally:
+                self._stop_tailwind_watch(tailwind_process)
 
         asyncio.run(main())
 
@@ -208,3 +343,13 @@ class Command:
     def compile_sass(self, parser):
         logging.info(f'[{self.config.env}] Sass output style {self.config.sass_output_style}.')
         self._compile_sass()
+
+    @parser_config()
+    def compile_tailwind(self, parser):
+        minify = getattr(parser, 'minify', False)
+        if self._compile_tailwind(minify=minify):
+            # Push the compiled CSS to the store
+            output_file = self.config.tailwind_output
+            if output_file and os.path.exists(output_file):
+                logging.info(f'[{self.config.env}] Pushing {output_file} to store...')
+                self._push_templates([output_file])
